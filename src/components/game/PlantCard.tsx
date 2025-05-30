@@ -14,6 +14,7 @@ interface PlantCardProps {
   isSelected?: boolean;
   disabled?: boolean; 
   showCost?: boolean;
+  isSunProducer?: boolean;
 }
 
 const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, className?: string }> = ({ type, width, height, className }) => {
@@ -137,12 +138,50 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, class
           </g>
         </svg>
       );
+    case '磁力菇':
+      return (
+        <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" className={className}>
+          <rect x="25" y="35" width="10" height="25" fill="#8A2BE2" rx="3"/> {/* Stem */}
+          <path d="M15 10 C 5 10, 5 35, 15 35 L 15 40 L 10 40 L 10 5 L 15 5 L 15 10 Z" fill="#C0C0C0" stroke="#A9A9A9" strokeWidth="2"/> {/* Left magnet arm */}
+          <path d="M45 10 C 55 10, 55 35, 45 35 L 45 40 L 50 40 L 50 5 L 45 5 L 45 10 Z" fill="#C0C0C0" stroke="#A9A9A9" strokeWidth="2"/> {/* Right magnet arm */}
+          <ellipse cx="30" cy="20" rx="18" ry="15" fill="#E6E6FA" /> {/* Head base */}
+          <path d="M15 5 Q30 -5 45 5" stroke="#A9A9A9" strokeWidth="2" fill="none"/> {/* Top curve */}
+          <circle cx="22" cy="20" r="4" fill="black" /> <circle cx="38" cy="20" r="4" fill="black" /> {/* Eyes */}
+        </svg>
+      );
+    case '分裂豆':
+      return (
+        <svg width={width} height={height} viewBox="0 0 70 60" xmlns="http://www.w3.org/2000/svg" className={className}>
+          <rect x="30" y="40" width="10" height="20" fill="#38761D" /> {/* Stem */}
+          <g> {/* Front Head */}
+            <circle cx="35" cy="25" r="20" fill="#6AA84F" />
+            <ellipse cx="50" cy="25" rx="8" ry="4" fill="#38761D" /> {/* Mouth */}
+            <circle cx="27" cy="18" r="5" fill="white" /><circle cx="27" cy="18" r="2.5" fill="black" /> {/* Eye */}
+          </g>
+          <g transform="translate(0, 5)"> {/* Back Head */}
+            <circle cx="15" cy="25" r="15" fill="#5A9A3F" /> 
+            <ellipse cx="3" cy="25" rx="6" ry="3" fill="#38761D" /> 
+             <circle cx="20" cy="18" r="4" fill="white" /><circle cx="20" cy="18" r="2" fill="black" /> 
+          </g>
+        </svg>
+      );
+    case '胆小菇':
+      return (
+        <svg width={width} height={height} viewBox="0 0 55 70" xmlns="http://www.w3.org/2000/svg" className={className}>
+          <rect x="22" y="30" width="11" height="40" fill="#DDA0DD" rx="4"/> {/* Stem (lavender) */}
+          <ellipse cx="27.5" cy="20" rx="20" ry="18" fill="#EE82EE" /> {/* Cap Base (violet) - Changed from PLUM */}
+           <path d="M10 25 Q27.5 0 45 25" fill="#DA70D6" opacity="0.7" /> {/* Cap Top (orchid) */}
+          <circle cx="20" cy="18" r="6" fill="white" stroke="black" strokeWidth="1"><animate attributeName="r" values="6;4;6" dur="1s" repeatCount="indefinite" /></circle> 
+          <circle cx="35" cy="18" r="6" fill="white" stroke="black" strokeWidth="1"><animate attributeName="r" values="6;4;6" dur="1s" repeatCount="indefinite" /></circle>
+          <circle cx="20" cy="18" r="2.5" fill="black" /> <circle cx="35" cy="18" r="2.5" fill="black" /> {/* Pupils */}
+        </svg>
+      );
     default:
       return <div style={{ width, height, backgroundColor: 'lightgray', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', border: '1px solid black', boxSizing: 'border-box' }} className={className}>{type}</div>;
   }
 };
 
-const PlantCard: FC<PlantCardProps> = ({ plant, onSelect, isSelected, disabled, showCost = true }) => {
+const PlantCard: FC<PlantCardProps> = ({ plant, onSelect, isSelected, disabled, showCost = true, isSunProducer }) => {
   return (
     <Card 
       className={cn(
@@ -162,7 +201,12 @@ const PlantCard: FC<PlantCardProps> = ({ plant, onSelect, isSelected, disabled, 
         />
       </CardHeader>
       <CardContent className="p-3 flex-grow text-center">
-        <CardTitle className="text-base leading-tight">{plant.name}</CardTitle>
+        <CardTitle className={cn(
+            "text-base leading-tight",
+            isSunProducer && "text-yellow-600 dark:text-yellow-400 font-bold"
+            )}>
+            {plant.name}
+        </CardTitle>
         {showCost && (
             <div className="flex items-center justify-center text-sm text-muted-foreground mt-1">
                 <CircleDollarSign className="w-4 h-4 mr-1 text-accent" />

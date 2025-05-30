@@ -9,7 +9,10 @@ export type PlantName =
   | '辣椒投手'
   | '冰冻射手'
   | '火焰菇'
-  | '双子向日葵';
+  | '双子向日葵'
+  | '磁力菇'      // New
+  | '分裂豆'      // New
+  | '胆小菇';     // New
 
 export type ZombieName = 
   | '普通僵尸' 
@@ -18,7 +21,10 @@ export type ZombieName =
   | '僵王博士'
   | '铁桶僵尸'
   | '橄榄球僵尸'
-  | '小鬼僵尸';
+  | '小鬼僵尸'
+  | '报纸僵尸'    // New
+  | '气球僵尸'    // New
+  | '矿工僵尸';   // New
 
 export interface PlantData {
   name: PlantName;
@@ -44,6 +50,8 @@ export interface ZombieData {
   imageWidth: number;
   imageHeight: number;
   imageHint: string; // Keep in English for AI hint
+  newspaperHealth?: number; // For Newspaper Zombie
+  enragedSpeed?: number; // For Newspaper Zombie after losing newspaper
 }
 
 export interface PlantInstance {
@@ -65,6 +73,8 @@ export interface ZombieInstance {
   x: number; // grid column (can be float for smooth movement)
   y: number; // grid row (lane)
   health: number;
+  currentNewspaperHealth?: number; // Track newspaper health separately
+  isEnraged?: boolean; // For Newspaper Zombie
   lastAttackTime?: number;
   isAttacking?: boolean; 
   isHit?: boolean; 
@@ -81,6 +91,7 @@ export interface ProjectileInstance {
   targetZombieId?: string; // Optional, for homing projectiles
   lane: number; // For straight-shooting projectiles - redundant with y but good for clarity
   startX?: number; // For arc calculation if needed
+  isBackward?: boolean; // For Split Pea's backward shot
 }
 
 export type GameState = 'Initializing' | 'Playing' | 'Paused' | 'Won' | 'Lost';
