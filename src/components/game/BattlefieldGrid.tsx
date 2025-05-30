@@ -311,22 +311,32 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
         return (
           <div
             key={plant.id}
-            className="absolute transition-all duration-100 ease-linear flex flex-col items-center justify-center"
+            className={cn(
+              "absolute transition-all duration-100 ease-linear flex flex-col items-center justify-center",
+              {
+                'animate-plant-attack': plant.isAttacking,
+                'animate-sunflower-produce': (plant.type === '太阳花' || plant.type === '双子向日葵') && plant.isProducingSun,
+                'animate-unit-die': plant.isDying,
+              }
+            )}
             style={{
               left: plant.x * CELL_SIZE + (CELL_SIZE - plantData.imageWidth) / 2,
               top: plant.y * CELL_SIZE + (CELL_SIZE - plantData.imageHeight) / 2,
               width: plantData.imageWidth,
               height: plantData.imageHeight,
+              zIndex: plant.isDying ? 5 : 10, // Keep dying units behind active ones potentially
             }}
             title={`${plantData.name} (生命值: ${plant.health})`}
           >
             <RenderPlantSvg type={plant.type} width={plantData.imageWidth} height={plantData.imageHeight} />
+            {!plant.isDying && (
              <div className="w-full h-1 bg-red-500 rounded-full mt-1 opacity-80">
-              <div 
-                className="h-full bg-green-500 rounded-full" 
-                style={{ width: `${(plant.health / plantData.health) * 100}%` }}
-              />
-            </div>
+                <div 
+                  className="h-full bg-green-500 rounded-full" 
+                  style={{ width: `${(plant.health / plantData.health) * 100}%` }}
+                />
+              </div>
+            )}
           </div>
         );
       })}
@@ -339,22 +349,33 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
         return (
           <div
             key={zombie.id}
-            className="absolute transition-all duration-100 ease-linear flex flex-col items-center justify-center" 
+            className={cn(
+              "absolute transition-transform duration-100 ease-linear flex flex-col items-center justify-center",
+              {
+                'animate-zombie-attack': zombie.isAttacking,
+                'animate-zombie-hit': zombie.isHit,
+                'animate-unit-die': zombie.isDying,
+                'animate-zombie-walk': !zombie.isAttacking && !zombie.isDying && zombie.x < GRID_COLS - 0.6, // Only walk if on screen and not attacking/dying
+              }
+            )}
             style={{
               left: zombie.x * CELL_SIZE + visualXOffset,
               top: zombie.y * CELL_SIZE + visualYOffset,
               width: zombieData.imageWidth,
               height: zombieData.imageHeight,
+              zIndex: zombie.isDying ? 15 : 20, // Keep dying zombies behind active ones
             }}
             title={`${zombieData.name} (生命值: ${zombie.health})`}
           >
             <RenderZombieSvg type={zombie.type} width={zombieData.imageWidth} height={zombieData.imageHeight} />
-            <div className="w-full h-1 bg-gray-500 rounded-full mt-1 opacity-80">
-              <div 
-                className="h-full bg-red-500 rounded-full" 
-                style={{ width: `${(zombie.health / zombieData.health) * 100}%` }}
-              />
-            </div>
+            {!zombie.isDying && (
+              <div className="w-full h-1 bg-gray-500 rounded-full mt-1 opacity-80">
+                <div 
+                  className="h-full bg-red-500 rounded-full" 
+                  style={{ width: `${(zombie.health / zombieData.health) * 100}%` }}
+                />
+              </div>
+            )}
           </div>
         );
       })}
@@ -362,7 +383,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
       {projectiles.map(proj => {
         let projectileBaseClass = "absolute rounded-full";
         let projectileStyle: React.CSSProperties = {};
-        let projectileSize = { width: 12, height: 12 }; // Default w-3 h-3 (12px)
+        let projectileSize = { width: 12, height: 12 }; 
 
         switch (proj.plantType) {
           case '豌豆射手':
@@ -399,12 +420,12 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
           case '冰冻射手':
             projectileBaseClass = cn(projectileBaseClass, "bg-cyan-400");
             projectileSize = { width: 14, height: 14 };
-            projectileStyle.boxShadow = "0 0 7px 2px rgba(103, 232, 249, 0.5)"; // Frosty glow
+            projectileStyle.boxShadow = "0 0 7px 2px rgba(103, 232, 249, 0.5)"; 
             break;
           case '火焰菇':
             projectileBaseClass = cn(projectileBaseClass, "bg-orange-500");
-            projectileSize = { width: 18, height: 18 }; // Larger fireball
-            projectileStyle.boxShadow = "0 0 9px 4px rgba(239, 68, 68, 0.6)"; // Fiery glow
+            projectileSize = { width: 18, height: 18 }; 
+            projectileStyle.boxShadow = "0 0 9px 4px rgba(239, 68, 68, 0.6)"; 
             break;
           default:
             projectileBaseClass = cn(projectileBaseClass, "bg-gray-400");
@@ -415,6 +436,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
         projectileStyle.height = projectileSize.height;
         projectileStyle.left = proj.x * CELL_SIZE + CELL_SIZE / 2 - projectileSize.width / 2;
         projectileStyle.top = proj.y * CELL_SIZE + CELL_SIZE / 2 - projectileSize.height / 2;
+        projectileStyle.zIndex = 25; // Ensure projectiles are above zombies/plants
 
         return (
           <div

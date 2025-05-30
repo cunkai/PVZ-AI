@@ -53,8 +53,10 @@ export interface PlantInstance {
   y: number; // grid row
   health: number;
   lastActionTime?: number; // For attack/sun generation timing
-  isAttacking?: boolean; // For attack animation
-  isProducingSun?: boolean; // For sunflower animation
+  isAttacking?: boolean; 
+  isProducingSun?: boolean; 
+  isDying?: boolean;
+  timeOfDeath?: number; 
 }
 
 export interface ZombieInstance {
@@ -64,8 +66,10 @@ export interface ZombieInstance {
   y: number; // grid row (lane)
   health: number;
   lastAttackTime?: number;
-  isHit?: boolean; // For damage taken animation
-  isDying?: boolean; // For death animation
+  isAttacking?: boolean; 
+  isHit?: boolean; 
+  isDying?: boolean; 
+  timeOfDeath?: number;
 }
 
 export interface ProjectileInstance {

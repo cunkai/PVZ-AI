@@ -28,9 +28,13 @@ import type { PlantInstance, ZombieInstance, PlantName, ZombieName, GameState, P
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from "@/hooks/use-toast";
 
+const DEATH_ANIMATION_DURATION = 500; // ms, matches unitDieEffect in globals.css
+const PLANT_ATTACK_ANIMATION_DURATION = 300; // ms
+const SUNFLOWER_PRODUCE_ANIMATION_DURATION = 600; // ms
+const ZOMBIE_ATTACK_ANIMATION_DURATION = 400; // ms
+const ZOMBIE_HIT_ANIMATION_DURATION = 200; // ms
 
 const generateId = () => typeof uuidv4 === 'function' ? uuidv4() : Math.random().toString(36).substring(2, 15);
-
 
 export default function HomePage() {
   const [sunlight, setSunlight] = useState(INITIAL_SUNLIGHT);
@@ -106,19 +110,25 @@ export default function HomePage() {
       gameTimeRef.current += GAME_TICK_MS;
       const currentTime = gameTimeRef.current;
 
+      // Sunlight production
       setPlants(prevPlants => 
         prevPlants.map(p => {
-          if (p.type === '太阳花') {
-            const plantData = PLANTS_DATA['太阳花'];
+          if (p.type === '太阳花' || p.type === '双子向日葵') {
+            const plantData = PLANTS_DATA[p.type];
             if (plantData.sunInterval && plantData.sunProduction && currentTime - (p.lastActionTime || 0) >= plantData.sunInterval) {
               setSunlight(s => s + plantData.sunProduction!);
-              return { ...p, lastActionTime: currentTime };
+              const plantId = p.id;
+              setTimeout(() => {
+                setPlants(prev => prev.map(plant => plant.id === plantId ? { ...plant, isProducingSun: false } : plant));
+              }, SUNFLOWER_PRODUCE_ANIMATION_DURATION);
+              return { ...p, lastActionTime: currentTime, isProducingSun: true };
             }
           }
           return p;
         })
       );
       
+      // Zombie Spawning
       if (currentWaveIndex < ZOMBIE_WAVES.length) {
         const waveData = ZOMBIE_WAVES[currentWaveIndex];
         const spawnInterval = Math.max(ZOMBIE_SPAWN_INTERVAL_MIN, ZOMBIE_SPAWN_INTERVAL_START - (currentWaveIndex * 1000));
@@ -143,14 +153,17 @@ export default function HomePage() {
         }
       }
 
+      // Plant attacks (Shooting projectiles)
       setPlants(prevPlants => {
         const newProjectiles: ProjectileInstance[] = [];
         const updatedPlants = prevPlants.map(plant => {
+          if (plant.isDying) return plant; // Don't process dying plants
+
           const plantData = PLANTS_DATA[plant.type];
           if (plantData.damage && plantData.attackSpeed) { 
             const attackIntervalMs = 1000 / plantData.attackSpeed;
             if (currentTime - (plant.lastActionTime || 0) >= attackIntervalMs) {
-              const targetableZombiesInLane = zombies.filter(z => z.y === plant.y && z.x < GRID_COLS && z.x > plant.x - 0.5);
+              const targetableZombiesInLane = zombies.filter(z => !z.isDying && z.y === plant.y && z.x < GRID_COLS && z.x > plant.x - 0.5);
               if (targetableZombiesInLane.length > 0) {
                 const closestZombie = targetableZombiesInLane.sort((a,b) => a.x - b.x)[0];
                 if (closestZombie) {
@@ -162,7 +175,11 @@ export default function HomePage() {
                     damage: plantData.damage,
                     lane: plant.y,
                   });
-                  return { ...plant, lastActionTime: currentTime };
+                  const plantId = plant.id;
+                  setTimeout(() => {
+                    setPlants(prev => prev.map(p => p.id === plantId ? { ...p, isAttacking: false } : p));
+                  }, PLANT_ATTACK_ANIMATION_DURATION);
+                  return { ...plant, lastActionTime: currentTime, isAttacking: true };
                 }
               }
             }
@@ -175,21 +192,36 @@ export default function HomePage() {
         return updatedPlants;
       });
 
+      // Zombie movement and attacks
       setZombies(prevZombies => 
         prevZombies.map(zombie => {
+          if (zombie.isDying) return zombie;
+
           const zombieData = ZOMBIES_DATA[zombie.type];
           let newX = zombie.x;
           let updatedZombie = { ...zombie };
 
-          const plantInFront = plants.find(p => p.y === zombie.y && Math.abs(p.x - zombie.x) < ZOMBIE_ATTACK_RANGE + 0.5 && p.x < zombie.x);
+          const plantInFront = plants.find(p => !p.isDying && p.y === zombie.y && Math.abs(p.x - zombie.x) < ZOMBIE_ATTACK_RANGE + 0.5 && p.x < zombie.x);
 
           if (plantInFront) { 
             const attackIntervalMs = 1000 / zombieData.attackSpeed;
             if (currentTime - (zombie.lastAttackTime || 0) >= attackIntervalMs) {
-              setPlants(prevPs => prevPs.map(p => 
-                p.id === plantInFront.id ? { ...p, health: Math.max(0, p.health - zombieData.damage) } : p
-              ).filter(p => p.health > 0));
+              setPlants(prevPs => prevPs.map(p => {
+                if (p.id === plantInFront.id && !p.isDying) {
+                  const newPlantHealth = Math.max(0, p.health - zombieData.damage);
+                  if (newPlantHealth <= 0 && !p.isDying) {
+                    return { ...p, health: 0, isDying: true, timeOfDeath: currentTime };
+                  }
+                  return { ...p, health: newPlantHealth };
+                }
+                return p;
+              }));
               updatedZombie.lastAttackTime = currentTime;
+              updatedZombie.isAttacking = true;
+              const zombieId = zombie.id;
+              setTimeout(() => {
+                setZombies(prev => prev.map(z => z.id === zombieId ? { ...z, isAttacking: false } : z));
+              }, ZOMBIE_ATTACK_ANIMATION_DURATION);
             }
           } else { 
             newX -= zombieData.speed * (GAME_TICK_MS / 1000);
@@ -197,21 +229,34 @@ export default function HomePage() {
           
           updatedZombie.x = newX;
           return updatedZombie;
-        }).filter(z => z.health > 0) 
+        })
       );
       
+      // Projectile movement and collision
       setProjectiles(prevProjectiles => {
         const stillActiveProjectiles: ProjectileInstance[] = [];
         prevProjectiles.forEach(proj => {
           let newProjX = proj.x + PROJECTILE_SPEED * (GAME_TICK_MS / 1000);
           let hitZombie = false;
 
-          const zombiesInLane = zombies.filter(z => z.y === proj.lane);
-          for (const zombie of zombiesInLane) {
-            if (newProjX > zombie.x && newProjX < zombie.x + 0.8 && Math.abs(proj.y - zombie.y) < 0.5) {
-               setZombies(prevZ => prevZ.map(zInstance => 
-                zInstance.id === zombie.id ? { ...zInstance, health: Math.max(0, zInstance.health - proj.damage) } : zInstance
-              ).filter(z => z.health > 0));
+          const zombiesInLane = zombies.filter(z => !z.isDying && z.y === proj.lane);
+          for (const zombieTarget of zombiesInLane) {
+            if (newProjX > zombieTarget.x && newProjX < zombieTarget.x + 0.8 && Math.abs(proj.y - zombieTarget.y) < 0.5) {
+               setZombies(prevZ => prevZ.map(zInstance => {
+                if (zInstance.id === zombieTarget.id && !zInstance.isDying) {
+                  const newZombieHealth = Math.max(0, zInstance.health - proj.damage);
+                  const zombieId = zInstance.id;
+                  setTimeout(() => {
+                    setZombies(prev => prev.map(z => z.id === zombieId ? { ...z, isHit: false } : z));
+                  }, ZOMBIE_HIT_ANIMATION_DURATION);
+                  
+                  if (newZombieHealth <= 0 && !zInstance.isDying) {
+                    return { ...zInstance, health: 0, isHit: true, isDying: true, timeOfDeath: currentTime };
+                  }
+                  return { ...zInstance, health: newZombieHealth, isHit: true };
+                }
+                return zInstance;
+              }));
               hitZombie = true;
               break; 
             }
@@ -224,17 +269,28 @@ export default function HomePage() {
         return stillActiveProjectiles;
       });
 
-      if (zombies.some(z => z.x <= 0)) {
+      // Filter out dead units after animation
+      setPlants(currentPlants => currentPlants.filter(p => 
+          !(p.isDying && p.timeOfDeath && currentTime >= (p.timeOfDeath + DEATH_ANIMATION_DURATION))
+      ));
+      setZombies(currentZombies => currentZombies.filter(z => 
+          !(z.isDying && z.timeOfDeath && currentTime >= (z.timeOfDeath + DEATH_ANIMATION_DURATION))
+      ));
+
+      // Game state checks (Win/Loss)
+      if (zombies.some(z => !z.isDying && z.x <= 0)) {
         setGameState('Lost');
         return;
       }
 
-      if (currentWaveIndex >= ZOMBIE_WAVES.length -1 && zombiesSpawnedThisWave >= zombiesToSpawnThisWave && zombies.length === 0) {
+      const activeZombies = zombies.filter(z => !z.isDying);
+      if (currentWaveIndex >= ZOMBIE_WAVES.length -1 && zombiesSpawnedThisWave >= zombiesToSpawnThisWave && activeZombies.length === 0) {
         setGameState('Won');
         return;
       }
       
-      if (currentWaveIndex < ZOMBIE_WAVES.length -1 && zombiesSpawnedThisWave >= zombiesToSpawnThisWave && zombies.length === 0) {
+      // Next wave logic
+      if (currentWaveIndex < ZOMBIE_WAVES.length -1 && zombiesSpawnedThisWave >= zombiesToSpawnThisWave && activeZombies.length === 0) {
         const nextWaveIndex = currentWaveIndex + 1;
         setCurrentWaveIndex(nextWaveIndex);
         setZombiesToSpawnThisWave(ZOMBIE_WAVES[nextWaveIndex].count);
