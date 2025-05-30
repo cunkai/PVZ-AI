@@ -23,9 +23,9 @@ const PlantSelectionPanel: FC<PlantSelectionPanelProps> = ({
   const availablePlants = Object.values(plantsData);
 
   return (
-    <Card className="p-4 shadow-2xl bg-card backdrop-blur-sm fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-2xl md:relative md:bottom-auto md:left-auto md:transform-none md:max-w-xs md:h-full">
+    <Card className="p-4 shadow-2xl bg-card backdrop-blur-sm fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-2xl md:relative md:bottom-auto md:left-auto md:transform-none md:max-w-xs">
       <h3 className="text-xl font-bold mb-4 text-center md:text-left text-primary-foreground drop-shadow-sm">选择你的植物！</h3>
-      <ScrollArea className="h-[180px] md:h-full">
+      <ScrollArea className="h-[180px] md:h-[340px]">
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-2 gap-3 pr-3">
           {availablePlants.map((plant) => (
             <PlantCard
@@ -45,3 +45,4 @@ const PlantSelectionPanel: FC<PlantSelectionPanelProps> = ({
 };
 
 export default PlantSelectionPanel;
+
