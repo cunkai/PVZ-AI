@@ -255,9 +255,9 @@ export default function HomePage() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex flex-col items-center justify-center min-h-screen p-2 sm:p-4 bg-gradient-to-br from-green-100 to-lime-100 dark:from-gray-800 dark:to-green-900">
-        <header className="w-full max-w-4xl mb-4 flex justify-between items-center p-2 rounded-lg bg-primary/10 shadow">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary">僵尸大战植物</h1>
+      <div className="flex flex-col items-center justify-center min-h-screen p-2 sm:p-4 bg-gradient-to-br from-green-200 via-lime-200 to-emerald-200 dark:from-gray-800 dark:via-green-900 dark:to-teal-900">
+        <header className="w-full max-w-4xl mb-4 flex justify-between items-center p-2 rounded-lg bg-primary/20 shadow-md">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary drop-shadow-sm">僵尸大战植物</h1>
           <SunlightDisplay sunlight={sunlight} />
         </header>
 
@@ -280,7 +280,7 @@ export default function HomePage() {
                 selectedPlantName={selectedPlantName}
               />
             ) : (
-              <div style={{ width: GRID_COLS * CELL_SIZE, height: GRID_ROWS * CELL_SIZE }} className="flex items-center justify-center bg-gray-200 rounded-lg border-4 border-yellow-600">
+              <div style={{ width: GRID_COLS * CELL_SIZE, height: GRID_ROWS * CELL_SIZE }} className="flex items-center justify-center bg-gray-200/70 rounded-lg border-4 border-yellow-600 shadow-lg">
                 <p className="text-xl text-gray-500">战场加载中...</p>
               </div>
             )}
@@ -296,7 +296,7 @@ export default function HomePage() {
           isPaused={gameState === 'Paused'}
         />
 
-        <footer className="mt-6 text-center text-sm text-muted-foreground">
+        <footer className="mt-6 text-center text-xs sm:text-sm text-muted-foreground/80">
           <p>一个简单的植物大战僵尸演示游戏。祝你玩得开心！</p>
           <p>提示：太阳花生产阳光。豌豆射手发射豌豆。请明智地放置！</p>
         </footer>

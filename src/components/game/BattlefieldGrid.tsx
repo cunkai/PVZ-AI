@@ -168,16 +168,16 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
       const isEvenRow = row % 2 === 0;
       const isEvenCol = col % 2 === 0;
       const cellBgClass = (isEvenRow && isEvenCol) || (!isEvenRow && !isEvenCol)
-        ? 'bg-green-200/50 dark:bg-green-800/50' 
-        : 'bg-green-300/50 dark:bg-green-700/50'; 
+        ? 'bg-green-300/60 dark:bg-green-800/60' 
+        : 'bg-green-400/60 dark:bg-green-700/60'; 
       
       gridCells.push(
         <div
           key={`${row}-${col}`}
           className={cn(
-            "border border-green-400/50 dark:border-green-600/50 flex items-center justify-center relative",
+            "border border-green-500/50 dark:border-green-600/50 flex items-center justify-center relative",
             cellBgClass,
-            selectedPlantName ? "cursor-pointer hover:bg-yellow-300/30 dark:hover:bg-yellow-700/30" : ""
+            selectedPlantName ? "cursor-pointer hover:bg-yellow-400/30 dark:hover:bg-yellow-700/30 transition-colors duration-150" : ""
           )}
           style={{ width: CELL_SIZE, height: CELL_SIZE }}
           onClick={() => onCellClick(row, col)}
@@ -194,7 +194,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
   }
 
   return (
-    <div className="relative bg-background shadow-inner overflow-hidden border-4 border-yellow-600 rounded-lg" style={{ width: GRID_COLS * CELL_SIZE, height: GRID_ROWS * CELL_SIZE }}>
+    <div className="relative bg-background/50 shadow-xl overflow-hidden border-4 border-green-700 dark:border-green-500 rounded-lg" style={{ width: GRID_COLS * CELL_SIZE, height: GRID_ROWS * CELL_SIZE }}>
       <div
         className="grid"
         style={{
@@ -220,7 +220,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
             title={`${plantData.name} (生命值: ${plant.health})`}
           >
             <RenderPlantSvg type={plant.type} width={plantData.imageWidth} height={plantData.imageHeight} />
-             <div className="w-full h-1 bg-red-500 rounded-full mt-1">
+             <div className="w-full h-1 bg-red-500 rounded-full mt-1 opacity-80">
               <div 
                 className="h-full bg-green-500 rounded-full" 
                 style={{ width: `${(plant.health / plantData.health) * 100}%` }}
@@ -248,7 +248,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
             title={`${zombieData.name} (生命值: ${zombie.health})`}
           >
             <RenderZombieSvg type={zombie.type} width={zombieData.imageWidth} height={zombieData.imageHeight} />
-            <div className="w-full h-1 bg-gray-500 rounded-full mt-1">
+            <div className="w-full h-1 bg-gray-500 rounded-full mt-1 opacity-80">
               <div 
                 className="h-full bg-red-500 rounded-full" 
                 style={{ width: `${(zombie.health / zombieData.health) * 100}%` }}
@@ -258,21 +258,42 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
         );
       })}
 
-      {projectiles.map(proj => (
-        <div
-          key={proj.id}
-          className={cn(
-            "absolute rounded-full",
-            (proj.plantType === '豌豆射手' || proj.plantType === '电能豌豆射手' || proj.plantType === '辣椒投手') ? 'bg-green-500 w-3 h-3' : '',
-            (proj.plantType === '电能豌豆射手' || proj.plantType === '闪电芦苇') ? 'bg-yellow-400 w-3 h-3 shadow-[0_0_5px_2px_theme(colors.yellow.300)]' : '',
-            proj.plantType === '辣椒投手' ? 'bg-orange-500 w-4 h-4' : ''
-          )}
-          style={{
-            left: proj.x * CELL_SIZE + CELL_SIZE / 2 - 6, 
-            top: proj.y * CELL_SIZE + CELL_SIZE / 2 - 6,  
-          }}
-        />
-      ))}
+      {projectiles.map(proj => {
+        let projectileClass = "absolute rounded-full";
+        let projectileSize = { width: 12, height: 12 }; // Default: w-3 h-3 (12px)
+        let offsetX = projectileSize.width / 2;
+        let offsetY = projectileSize.height / 2;
+
+        if (proj.plantType === '豌豆射手') {
+          projectileClass = cn(projectileClass, "bg-green-500 w-3 h-3");
+        } else if (proj.plantType === '电能豌豆射手') {
+          projectileSize = { width: 14, height: 14 }; // w-3.5 h-3.5
+          projectileClass = cn(projectileClass, "bg-blue-500 w-3.5 h-3.5 shadow-[0_0_8px_3px_theme(colors.blue.400)]");
+        } else if (proj.plantType === '闪电芦苇') {
+          projectileSize = { width: 8, height: 16 }; // w-2 h-4
+          projectileClass = cn(projectileClass, "bg-yellow-400 w-2 h-4 transform rotate-[30deg] shadow-[0_0_6px_2px_theme(colors.yellow.300)]");
+        } else if (proj.plantType === '辣椒投手') {
+          projectileSize = { width: 16, height: 16 }; // w-4 h-4
+          projectileClass = cn(projectileClass, "bg-orange-600 w-4 h-4 shadow-[0_0_10px_4px_theme(colors.red.500)] animate-pulse");
+        } else {
+          projectileClass = cn(projectileClass, "bg-gray-400 w-3 h-3"); // Fallback
+        }
+        
+        offsetX = projectileSize.width / 2;
+        offsetY = projectileSize.height / 2;
+
+        return (
+          <div
+            key={proj.id}
+            className={projectileClass}
+            style={{
+              left: proj.x * CELL_SIZE + CELL_SIZE / 2 - offsetX, 
+              top: proj.y * CELL_SIZE + CELL_SIZE / 2 - offsetY,
+            }}
+            title={`发射物 (${proj.plantType})`}
+          />
+        );
+      })}
     </div>
   );
 };
