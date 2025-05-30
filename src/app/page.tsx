@@ -50,7 +50,7 @@ export default function HomePage() {
   const lastSpawnTimeRef = useRef(0);
   const gameTimeRef = useRef(0);
   const { toast } = useToast();
-  const waveToastShownRef = useRef(false); // Ref to track if wave start toast has been shown
+  const waveToastShownRef = useRef(false); 
 
   const initializeGame = useCallback(() => {
     setSunlight(INITIAL_SUNLIGHT);
@@ -138,22 +138,21 @@ export default function HomePage() {
       // Zombie Spawning
       if (currentWaveIndex < ZOMBIE_WAVES.length) {
         const waveData = ZOMBIE_WAVES[currentWaveIndex];
-         const baseInterval = Math.max(ZOMBIE_SPAWN_INTERVAL_MIN, ZOMBIE_SPAWN_INTERVAL_START - (currentWaveIndex * 500)); // Slower interval reduction per wave
-         const actualSpawnInterval = baseInterval * (0.85 + Math.random() * 0.3); // +/- 15% jitter
+         const baseInterval = Math.max(ZOMBIE_SPAWN_INTERVAL_MIN, ZOMBIE_SPAWN_INTERVAL_START - (currentWaveIndex * 500)); 
+         const actualSpawnInterval = baseInterval * (0.85 + Math.random() * 0.3); 
         
         if (zombiesSpawnedThisWave < zombiesToSpawnThisWave && currentTime - lastSpawnTimeRef.current >= actualSpawnInterval) {
           const randomLane = Math.floor(Math.random() * GRID_ROWS);
-          // Ensure waveData.types exists and has elements
           const zombieTypeData = waveData.types && waveData.types.length > 0 
             ? waveData.types[Math.floor(Math.random() * waveData.types.length)] 
-            : ZOMBIES_DATA.普通僵尸; // Fallback to basic zombie if types is undefined/empty
+            : ZOMBIES_DATA.普通僵尸; 
           
           setZombies(prevZombies => [
             ...prevZombies,
             {
               id: generateId(),
               type: zombieTypeData.name,
-              x: GRID_COLS - 0.5, 
+              x: GRID_COLS - 0.1, // Spawn at the very right edge of playable grid
               y: randomLane,
               health: zombieTypeData.health,
               lastAttackTime: 0,
@@ -185,6 +184,7 @@ export default function HomePage() {
                     y: plant.y,
                     damage: plantData.damage,
                     lane: plant.y,
+                    startX: plant.x + 0.7, // Store start X for arc calculations if needed (e.g. for Pepper)
                   });
                   const plantId = plant.id;
                   setTimeout(() => {
@@ -252,7 +252,8 @@ export default function HomePage() {
 
           const zombiesInLane = zombies.filter(z => !z.isDying && z.y === proj.lane);
           for (const zombieTarget of zombiesInLane) {
-            if (newProjX > zombieTarget.x && newProjX < zombieTarget.x + 0.8 && Math.abs(proj.y - zombieTarget.y) < 0.5) {
+            // Adjust hit box slightly to be more generous for zombie width
+            if (newProjX > zombieTarget.x - 0.2 && newProjX < zombieTarget.x + 0.6 && Math.abs(proj.y - zombieTarget.y) < 0.5) {
                setZombies(prevZ => prevZ.map(zInstance => {
                 if (zInstance.id === zombieTarget.id && !zInstance.isDying) {
                   const newZombieHealth = Math.max(0, zInstance.health - proj.damage);
@@ -273,7 +274,7 @@ export default function HomePage() {
             }
           }
 
-          if (!hitZombie && newProjX < GRID_COLS) {
+          if (!hitZombie && newProjX < GRID_COLS) { // Projectile flies off screen
             stillActiveProjectiles.push({ ...proj, x: newProjX });
           }
         });
@@ -289,7 +290,7 @@ export default function HomePage() {
       ));
 
       // Game state checks (Win/Loss)
-      if (zombies.some(z => !z.isDying && z.x <= 0)) {
+      if (zombies.some(z => !z.isDying && z.x <= -0.5)) { // Give a little leeway for zombie to be fully off screen
         setGameState('Lost');
         return;
       }
@@ -307,12 +308,12 @@ export default function HomePage() {
         setZombiesToSpawnThisWave(ZOMBIE_WAVES[nextWaveIndex].count);
         setZombiesSpawnedThisWave(0);
         lastSpawnTimeRef.current = currentTime + (ZOMBIE_WAVES[nextWaveIndex].delay || 0); 
-        waveToastShownRef.current = false; // Reset for next wave
+        waveToastShownRef.current = false; 
       }
 
       // Show wave start toast
       if (!waveToastShownRef.current && gameState === 'Playing' && zombiesSpawnedThisWave === 0) {
-         if (currentWaveIndex > 0 || (currentWaveIndex === 0 && gameTimeRef.current > GAME_TICK_MS) ) { // Avoid double toast on init
+         if (currentWaveIndex > 0 || (currentWaveIndex === 0 && gameTimeRef.current > GAME_TICK_MS) ) { 
             toast({
               title: `第 ${currentWaveIndex + 1} 波进攻！`,
               description: `僵尸大军正在集结！准备迎战！`,
@@ -385,3 +386,6 @@ export default function HomePage() {
     </DndProvider>
   );
 }
+
+
+    

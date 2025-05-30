@@ -6,6 +6,8 @@ import { GRID_COLS, GRID_ROWS, CELL_SIZE, PLANTS_DATA, ZOMBIES_DATA, PEPPER_ARC_
 import type { PlantInstance, ZombieInstance, ProjectileInstance, PlantName, ZombieName } from '@/types';
 import { cn } from '@/lib/utils';
 
+const SPAWN_AREA_WIDTH = CELL_SIZE * 0.75; // Width of the zombie spawn area
+
 interface BattlefieldGridProps {
   plants: PlantInstance[];
   zombies: ZombieInstance[];
@@ -15,6 +17,7 @@ interface BattlefieldGridProps {
 }
 
 const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = ({ type, width, height }) => {
+  // SVG definitions (omitted for brevity, same as before)
   switch (type) {
     case '豌豆射手':
       return (
@@ -144,6 +147,7 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = (
 };
 
 const RenderZombieSvg: FC<{ type: ZombieName; width: number; height: number }> = ({ type, width, height }) => {
+  // SVG definitions (omitted for brevity, same as before)
   switch (type) {
     case '普通僵尸': 
       return (
@@ -188,7 +192,7 @@ const RenderZombieSvg: FC<{ type: ZombieName; width: number; height: number }> =
               <path d="M30 23 Q35 26 40 23" stroke="black" strokeWidth="1.5" fill="none"/> {/* Smile */}
             </svg>
         );
-    case '僵王博士': // Adjusted viewBox for better fitting if image is 100x100
+    case '僵王博士': 
         return (
             <svg width={width} height={height} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
               <rect x="15" y="35" width="70" height="60" fill="#4A4A4A" rx="10"/> {/* Main Body - Darker */}
@@ -295,17 +299,55 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
   }
 
   return (
-    <div className="relative bg-background/50 shadow-xl overflow-hidden border-4 border-green-700 dark:border-green-500 rounded-lg" style={{ width: GRID_COLS * CELL_SIZE, height: GRID_ROWS * CELL_SIZE }}>
+    <div 
+      className="relative bg-transparent" // Outermost container
+      style={{ 
+        width: (GRID_COLS * CELL_SIZE) + SPAWN_AREA_WIDTH, 
+        height: GRID_ROWS * CELL_SIZE 
+      }}
+    >
+      {/* Playable Grid Area Container */}
       <div
-        className="grid"
+        className="absolute top-0 left-0 bg-background/50 shadow-xl border-y-4 border-l-4 border-green-700 dark:border-green-500 rounded-l-lg"
         style={{
-          gridTemplateColumns: `repeat(${GRID_COLS}, ${CELL_SIZE}px)`,
-          gridTemplateRows: `repeat(${GRID_ROWS}, ${CELL_SIZE}px)`,
+          width: GRID_COLS * CELL_SIZE,
+          height: GRID_ROWS * CELL_SIZE,
         }}
       >
-        {gridCells}
+        <div
+          className="grid h-full"
+          style={{
+            gridTemplateColumns: `repeat(${GRID_COLS}, ${CELL_SIZE}px)`,
+            gridTemplateRows: `repeat(${GRID_ROWS}, ${CELL_SIZE}px)`,
+          }}
+        >
+          {gridCells}
+        </div>
+      </div>
+
+      {/* Spawn Area Visual Div */}
+      <div
+        className="absolute top-0 bg-gray-300/70 dark:bg-gray-600/70 border-y-4 border-r-4 border-green-700 dark:border-green-500 rounded-r-lg shadow-xl"
+        style={{
+          left: GRID_COLS * CELL_SIZE,
+          width: SPAWN_AREA_WIDTH,
+          height: GRID_ROWS * CELL_SIZE,
+          zIndex: 0, 
+        }}
+        aria-hidden="true"
+      >
+        <div className="flex items-center justify-center h-full">
+            <p 
+              className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 transform -rotate-90 whitespace-nowrap origin-center opacity-70"
+              style={{ letterSpacing: '0.05em' }}
+            >
+                僵尸出现区
+            </p>
+        </div>
       </div>
       
+      {/* Plants, Zombies, and Projectiles are positioned relative to the Outermost container */}
+      {/* Their 'left' style will correctly place them within the playable grid area */}
       {plants.map(plant => {
         const plantData = PLANTS_DATA[plant.type];
         return (
@@ -324,7 +366,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
               top: plant.y * CELL_SIZE + (CELL_SIZE - plantData.imageHeight) / 2,
               width: plantData.imageWidth,
               height: plantData.imageHeight,
-              zIndex: plant.isDying ? 5 : 10, // Keep dying units behind active ones potentially
+              zIndex: plant.isDying ? 5 : 10,
             }}
             title={`${plantData.name} (生命值: ${plant.health})`}
           >
@@ -355,7 +397,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
                 'animate-zombie-attack': zombie.isAttacking,
                 'animate-zombie-hit': zombie.isHit,
                 'animate-unit-die': zombie.isDying,
-                'animate-zombie-walk': !zombie.isAttacking && !zombie.isDying && zombie.x < GRID_COLS - 0.6, // Only walk if on screen and not attacking/dying
+                'animate-zombie-walk': !zombie.isAttacking && !zombie.isDying && zombie.x < GRID_COLS - 0.1, 
               }
             )}
             style={{
@@ -363,7 +405,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
               top: zombie.y * CELL_SIZE + visualYOffset,
               width: zombieData.imageWidth,
               height: zombieData.imageHeight,
-              zIndex: zombie.isDying ? 15 : 20, // Keep dying zombies behind active ones
+              zIndex: zombie.isDying ? 15 : 20, 
             }}
             title={`${zombieData.name} (生命值: ${zombie.health})`}
           >
@@ -406,12 +448,13 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
             projectileStyle.boxShadow = "0 0 10px 4px rgba(239, 68, 68, 0.7)"; 
             
             const plantSource = plants.find(p => p.y === proj.lane && p.type === '辣椒投手');
-            const startX = plantSource ? (plantSource.x + 0.7) * CELL_SIZE : proj.x * CELL_SIZE; 
+            // Use proj.startX if available (set at projectile creation), otherwise fallback to current plant pos or proj.x
+            const startXPixel = proj.startX ? proj.startX * CELL_SIZE : (plantSource ? (plantSource.x + 0.7) * CELL_SIZE : proj.x * CELL_SIZE);
 
-            const currentX = proj.x * CELL_SIZE + CELL_SIZE / 2 - projectileSize.width / 2;
+            const currentXPixel = proj.x * CELL_SIZE + CELL_SIZE / 2 - projectileSize.width / 2;
             const arcTotalDistancePixels = PEPPER_ARC_DISTANCE_CELLS * CELL_SIZE;
             
-            let arcProgress = (currentX - startX) / arcTotalDistancePixels;
+            let arcProgress = (currentXPixel - startXPixel) / arcTotalDistancePixels;
             arcProgress = Math.max(0, Math.min(1, arcProgress)); 
 
             const yOffset = Math.sin(arcProgress * Math.PI) * -(PEPPER_ARC_HEIGHT_CELLS * CELL_SIZE);
@@ -423,9 +466,9 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
             projectileStyle.boxShadow = "0 0 7px 2px rgba(103, 232, 249, 0.5)"; 
             break;
           case '火焰菇':
-            projectileBaseClass = cn(projectileBaseClass, "bg-orange-500");
+            projectileBaseClass = cn(projectileBaseClass, "bg-red-500"); // Brighter red for fire
             projectileSize = { width: 18, height: 18 }; 
-            projectileStyle.boxShadow = "0 0 9px 4px rgba(239, 68, 68, 0.6)"; 
+            projectileStyle.boxShadow = "0 0 9px 4px rgba(249, 115, 22, 0.7)"; // More fiery shadow
             break;
           default:
             projectileBaseClass = cn(projectileBaseClass, "bg-gray-400");
@@ -436,7 +479,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
         projectileStyle.height = projectileSize.height;
         projectileStyle.left = proj.x * CELL_SIZE + CELL_SIZE / 2 - projectileSize.width / 2;
         projectileStyle.top = proj.y * CELL_SIZE + CELL_SIZE / 2 - projectileSize.height / 2;
-        projectileStyle.zIndex = 25; // Ensure projectiles are above zombies/plants
+        projectileStyle.zIndex = 25; 
 
         return (
           <div
@@ -452,3 +495,5 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
 };
 
 export default BattlefieldGrid;
+
+    
