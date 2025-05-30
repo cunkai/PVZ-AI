@@ -1,8 +1,9 @@
+
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { DndProvider } from 'react-dnd'; // Placeholder for future drag-and-drop
-import { HTML5Backend } from 'react-dnd-html5-backend'; // Placeholder
+import { DndProvider } from 'react-dnd'; 
+import { HTML5Backend } from 'react-dnd-html5-backend'; 
 
 import BattlefieldGrid from '@/components/game/BattlefieldGrid';
 import PlantSelectionPanel from '@/components/game/PlantSelectionPanel';
@@ -15,8 +16,6 @@ import {
   GRID_ROWS,
   GRID_COLS,
   INITIAL_SUNLIGHT,
-  SUNFLOWER_PRODUCTION_INTERVAL,
-  SUNFLOWER_SUN_AMOUNT,
   GAME_TICK_MS,
   ZOMBIE_SPAWN_INTERVAL_START,
   ZOMBIE_SPAWN_INTERVAL_MIN,
@@ -26,10 +25,10 @@ import {
   CELL_SIZE
 } from '@/config/gameConfig';
 import type { PlantInstance, ZombieInstance, PlantName, ZombieName, GameState, ProjectileInstance } from '@/types';
-import { v4 as uuidv4 } from 'uuid'; // For unique IDs. Install with `npm install uuid @types/uuid`
+import { v4 as uuidv4 } from 'uuid';
+import { useToast } from "@/hooks/use-toast";
 
-// Helper function to generate unique IDs
-// If uuid is not available, use a simpler one for demo
+
 const generateId = () => typeof uuidv4 === 'function' ? uuidv4() : Math.random().toString(36).substring(2, 15);
 
 
@@ -46,6 +45,7 @@ export default function HomePage() {
   
   const lastSpawnTimeRef = useRef(0);
   const gameTimeRef = useRef(0);
+  const { toast } = useToast();
 
   const initializeGame = useCallback(() => {
     setSunlight(INITIAL_SUNLIGHT);
@@ -62,7 +62,6 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    // Initialize game on mount
     initializeGame();
   }, [initializeGame]);
 
@@ -76,13 +75,12 @@ export default function HomePage() {
 
     const plantData = PLANTS_DATA[selectedPlantName];
     if (sunlight < plantData.cost) {
-      alert("Not enough sunlight!"); // Replace with a nicer toast/notification
+      toast({ title: "提示", description: "阳光不足！", variant: "destructive" });
       return;
     }
 
-    // Check if cell is occupied
     if (plants.some(p => p.x === col && p.y === row)) {
-      alert("Cell is already occupied!");
+      toast({ title: "提示", description: "单元格已被占据！", variant: "destructive" });
       return;
     }
 
@@ -98,10 +96,9 @@ export default function HomePage() {
         lastActionTime: gameTimeRef.current,
       },
     ]);
-    setSelectedPlantName(null); // Deselect after planting
+    setSelectedPlantName(null); 
   };
 
-  // Game Loop
   useEffect(() => {
     if (gameState !== 'Playing') return;
 
@@ -109,11 +106,10 @@ export default function HomePage() {
       gameTimeRef.current += GAME_TICK_MS;
       const currentTime = gameTimeRef.current;
 
-      // 1. Sunlight generation from Sunflowers
       setPlants(prevPlants => 
         prevPlants.map(p => {
-          if (p.type === 'Sunflower') {
-            const plantData = PLANTS_DATA.Sunflower;
+          if (p.type === '太阳花') {
+            const plantData = PLANTS_DATA['太阳花'];
             if (plantData.sunInterval && plantData.sunProduction && currentTime - (p.lastActionTime || 0) >= plantData.sunInterval) {
               setSunlight(s => s + plantData.sunProduction!);
               return { ...p, lastActionTime: currentTime };
@@ -123,7 +119,6 @@ export default function HomePage() {
         })
       );
       
-      // 2. Zombie Spawning
       if (currentWaveIndex < ZOMBIE_WAVES.length) {
         const waveData = ZOMBIE_WAVES[currentWaveIndex];
         const spawnInterval = Math.max(ZOMBIE_SPAWN_INTERVAL_MIN, ZOMBIE_SPAWN_INTERVAL_START - (currentWaveIndex * 1000));
@@ -137,7 +132,7 @@ export default function HomePage() {
             {
               id: generateId(),
               type: zombieTypeData.name,
-              x: GRID_COLS - 0.5, // Start just off screen
+              x: GRID_COLS - 0.5, 
               y: randomLane,
               health: zombieTypeData.health,
               lastAttackTime: 0,
@@ -148,24 +143,21 @@ export default function HomePage() {
         }
       }
 
-      // 3. Plant Actions (Shooting)
       setPlants(prevPlants => {
         const newProjectiles: ProjectileInstance[] = [];
         const updatedPlants = prevPlants.map(plant => {
           const plantData = PLANTS_DATA[plant.type];
-          if (plantData.damage && plantData.attackSpeed) { // It's an attacker
+          if (plantData.damage && plantData.attackSpeed) { 
             const attackIntervalMs = 1000 / plantData.attackSpeed;
             if (currentTime - (plant.lastActionTime || 0) >= attackIntervalMs) {
-              // Find target zombie in lane
-              const targetableZombiesInLane = zombies.filter(z => z.y === plant.y && z.x < GRID_COLS && z.x > plant.x - 0.5); // target zombies in front
+              const targetableZombiesInLane = zombies.filter(z => z.y === plant.y && z.x < GRID_COLS && z.x > plant.x - 0.5);
               if (targetableZombiesInLane.length > 0) {
-                 // Simplistic targeting: first zombie in lane
                 const closestZombie = targetableZombiesInLane.sort((a,b) => a.x - b.x)[0];
                 if (closestZombie) {
                    newProjectiles.push({
                     id: generateId(),
                     plantType: plant.type,
-                    x: plant.x + 0.7, // Emerge from front of plant
+                    x: plant.x + 0.7, 
                     y: plant.y,
                     damage: plantData.damage,
                     lane: plant.y,
@@ -183,18 +175,15 @@ export default function HomePage() {
         return updatedPlants;
       });
 
-
-      // 4. Zombie Movement & Attack
       setZombies(prevZombies => 
         prevZombies.map(zombie => {
           const zombieData = ZOMBIES_DATA[zombie.type];
           let newX = zombie.x;
           let updatedZombie = { ...zombie };
 
-          // Check for plant in front
           const plantInFront = plants.find(p => p.y === zombie.y && Math.abs(p.x - zombie.x) < ZOMBIE_ATTACK_RANGE + 0.5 && p.x < zombie.x);
 
-          if (plantInFront) { // Attack plant
+          if (plantInFront) { 
             const attackIntervalMs = 1000 / zombieData.attackSpeed;
             if (currentTime - (zombie.lastAttackTime || 0) >= attackIntervalMs) {
               setPlants(prevPs => prevPs.map(p => 
@@ -202,26 +191,23 @@ export default function HomePage() {
               ).filter(p => p.health > 0));
               updatedZombie.lastAttackTime = currentTime;
             }
-          } else { // Move
+          } else { 
             newX -= zombieData.speed * (GAME_TICK_MS / 1000);
           }
           
           updatedZombie.x = newX;
           return updatedZombie;
-        }).filter(z => z.health > 0) // Remove dead zombies
+        }).filter(z => z.health > 0) 
       );
       
-      // 5. Projectile Movement & Collision
       setProjectiles(prevProjectiles => {
         const stillActiveProjectiles: ProjectileInstance[] = [];
         prevProjectiles.forEach(proj => {
           let newProjX = proj.x + PROJECTILE_SPEED * (GAME_TICK_MS / 1000);
           let hitZombie = false;
 
-          // Check for collision
           const zombiesInLane = zombies.filter(z => z.y === proj.lane);
           for (const zombie of zombiesInLane) {
-            // Simple collision check (projectile center vs zombie bounding box)
             if (newProjX > zombie.x && newProjX < zombie.x + 0.8 && Math.abs(proj.y - zombie.y) < 0.5) {
                setZombies(prevZ => prevZ.map(zInstance => 
                 zInstance.id === zombie.id ? { ...zInstance, health: Math.max(0, zInstance.health - proj.damage) } : zInstance
@@ -238,31 +224,28 @@ export default function HomePage() {
         return stillActiveProjectiles;
       });
 
-      // 6. Check Win/Loss Conditions
-      // Loss: Zombie reaches leftmost column
       if (zombies.some(z => z.x <= 0)) {
         setGameState('Lost');
         return;
       }
 
-      // Win: All waves cleared and no zombies left
       if (currentWaveIndex >= ZOMBIE_WAVES.length -1 && zombiesSpawnedThisWave >= zombiesToSpawnThisWave && zombies.length === 0) {
         setGameState('Won');
         return;
       }
       
-      // Advance to next wave
       if (currentWaveIndex < ZOMBIE_WAVES.length -1 && zombiesSpawnedThisWave >= zombiesToSpawnThisWave && zombies.length === 0) {
-        setCurrentWaveIndex(prev => prev + 1);
-        setZombiesToSpawnThisWave(ZOMBIE_WAVES[currentWaveIndex + 1].count);
+        const nextWaveIndex = currentWaveIndex + 1;
+        setCurrentWaveIndex(nextWaveIndex);
+        setZombiesToSpawnThisWave(ZOMBIE_WAVES[nextWaveIndex].count);
         setZombiesSpawnedThisWave(0);
-        lastSpawnTimeRef.current = currentTime + (ZOMBIE_WAVES[currentWaveIndex + 1].delay || 0); // Apply delay for next wave
+        lastSpawnTimeRef.current = currentTime + (ZOMBIE_WAVES[nextWaveIndex].delay || 0); 
       }
 
     }, GAME_TICK_MS);
 
     return () => clearInterval(gameInterval);
-  }, [gameState, currentWaveIndex, zombies, plants, zombiesSpawnedThisWave, zombiesToSpawnThisWave]);
+  }, [gameState, currentWaveIndex, zombies, plants, zombiesSpawnedThisWave, zombiesToSpawnThisWave, toast]);
 
 
   const handleTogglePause = () => {
@@ -271,10 +254,10 @@ export default function HomePage() {
   };
 
   return (
-    <DndProvider backend={HTML5Backend}> {/* Placeholder DND provider */}
+    <DndProvider backend={HTML5Backend}>
       <div className="flex flex-col items-center justify-center min-h-screen p-2 sm:p-4 bg-gradient-to-br from-green-100 to-lime-100 dark:from-gray-800 dark:to-green-900">
         <header className="w-full max-w-4xl mb-4 flex justify-between items-center p-2 rounded-lg bg-primary/10 shadow">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Zombies vs. Sprouts</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">僵尸大战植物</h1>
           <SunlightDisplay sunlight={sunlight} />
         </header>
 
@@ -298,7 +281,7 @@ export default function HomePage() {
               />
             ) : (
               <div style={{ width: GRID_COLS * CELL_SIZE, height: GRID_ROWS * CELL_SIZE }} className="flex items-center justify-center bg-gray-200 rounded-lg border-4 border-yellow-600">
-                <p className="text-xl text-gray-500">Loading Battlefield...</p>
+                <p className="text-xl text-gray-500">战场加载中...</p>
               </div>
             )}
           </div>
@@ -314,8 +297,8 @@ export default function HomePage() {
         />
 
         <footer className="mt-6 text-center text-sm text-muted-foreground">
-          <p>A simple Plants vs. Zombies demo. Enjoy!</p>
-          <p>Tip: Sunflowers generate sun. Peashooters shoot. Place wisely!</p>
+          <p>一个简单的植物大战僵尸演示游戏。祝你玩得开心！</p>
+          <p>提示：太阳花生产阳光。豌豆射手发射豌豆。请明智地放置！</p>
         </footer>
       </div>
     </DndProvider>

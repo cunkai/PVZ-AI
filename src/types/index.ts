@@ -1,18 +1,18 @@
 
 export type PlantName = 
-  | 'Peashooter' 
-  | 'Sunflower' 
-  | 'WallNut' 
-  | 'ElectricPeashooter' 
-  | 'ElectricReed' 
-  | 'CeleryStalker' 
-  | 'PepperPult';
+  | '豌豆射手' 
+  | '太阳花' 
+  | '坚果墙' 
+  | '电能豌豆射手' 
+  | '闪电芦苇' 
+  | '芹菜潜行者' 
+  | '辣椒投手';
 
 export type ZombieName = 
-  | 'BasicZombie' 
-  | 'ConeheadZombie' 
-  | 'DancingZombie' 
-  | 'Zomboss';
+  | '普通僵尸' 
+  | '路障僵尸' 
+  | '舞王僵尸' 
+  | '僵王博士';
 
 export interface PlantData {
   name: PlantName;
@@ -25,7 +25,7 @@ export interface PlantData {
   description: string;
   imageWidth: number;
   imageHeight: number;
-  imageHint: string;
+  imageHint: string; // Keep in English for AI hint
 }
 
 export interface ZombieData {
@@ -37,7 +37,7 @@ export interface ZombieData {
   description: string;
   imageWidth: number;
   imageHeight: number;
-  imageHint: string;
+  imageHint: string; // Keep in English for AI hint
 }
 
 export interface PlantInstance {

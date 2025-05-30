@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { FC } from 'react';
@@ -12,7 +13,7 @@ const SunlightDisplay: FC<SunlightDisplayProps> = ({ sunlight }) => {
   return (
     <Card className="bg-accent/20 border-accent shadow-lg w-fit">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-accent-foreground/80">Sunlight</CardTitle>
+        <CardTitle className="text-sm font-medium text-accent-foreground/80">阳光</CardTitle>
         <Sun className="h-5 w-5 text-accent" />
       </CardHeader>
       <CardContent>

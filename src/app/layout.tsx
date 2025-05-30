@@ -1,7 +1,7 @@
 import type {Metadata} from 'next';
 import {Geist, Geist_Mono} from 'next/font/google';
 import './globals.css';
-import { Toaster } from "@/components/ui/toaster"; // Added Toaster
+import { Toaster } from "@/components/ui/toaster"; 
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Zombies vs. Sprouts - A Firebase Studio Demo',
-  description: 'A fun Plants vs. Zombies style game demo built with Next.js and Firebase Studio.',
+  title: '僵尸大战植物 - Firebase Studio 演示',
+  description: '一个用 Next.js 和 Firebase Studio 构建的有趣的植物大战僵尸风格游戏演示。',
 };
 
 export default function RootLayout({
@@ -24,10 +24,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="zh-CN">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
-        <Toaster /> {/* Added Toaster here */}
+        <Toaster /> 
       </body>
     </html>
   );

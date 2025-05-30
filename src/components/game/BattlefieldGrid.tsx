@@ -2,7 +2,6 @@
 "use client";
 
 import type { FC, ReactNode } from 'react';
-// Removed Image import as we are using inline SVGs
 import { GRID_COLS, GRID_ROWS, CELL_SIZE, PLANTS_DATA, ZOMBIES_DATA } from '@/config/gameConfig';
 import type { PlantInstance, ZombieInstance, ProjectileInstance, PlantName, ZombieName } from '@/types';
 import { cn } from '@/lib/utils';
@@ -12,12 +11,12 @@ interface BattlefieldGridProps {
   zombies: ZombieInstance[];
   projectiles: ProjectileInstance[];
   onCellClick: (row: number, col: number) => void;
-  selectedPlantName: string | null;
+  selectedPlantName: PlantName | null;
 }
 
 const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = ({ type, width, height }) => {
   switch (type) {
-    case 'Peashooter':
+    case '豌豆射手':
       return (
         <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
           <rect x="25" y="40" width="10" height="20" fill="#38761D" /> {/* Stem */}
@@ -26,7 +25,7 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = (
           <circle cx="22" cy="18" r="5" fill="white" /><circle cx="22" cy="18" r="2.5" fill="black" /> {/* Eye */}
         </svg>
       );
-    case 'Sunflower':
+    case '太阳花':
       return (
         <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
           <rect x="27" y="45" width="6" height="15" fill="#38761D" /> {/* Stem */}
@@ -42,7 +41,7 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = (
           <circle cx="30" cy="30" r="10" fill="#B45309" /> {/* Inner center */}
         </svg>
       );
-    case 'WallNut': // 60x70
+    case '坚果墙': 
       return (
         <svg width={width} height={height} viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg">
           <ellipse cx="30" cy="38" rx="28" ry="32" fill="#8D6E63" /> {/* Main body */}
@@ -52,7 +51,7 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = (
           <circle cx="20" cy="30" r="3" fill="#5D4037" /> <circle cx="40" cy="45" r="3" fill="#5D4037" />
         </svg>
       );
-    case 'ElectricPeashooter': // 60x60
+    case '电能豌豆射手': 
       return (
         <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
           <rect x="25" y="40" width="10" height="20" fill="#1E3A8A" /> {/* Stem - blueish */}
@@ -62,7 +61,7 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = (
           <path d="M50 20 L55 15 L53 22 L58 20 L50 30 L52 23 L48 25 Z" fill="#FDE047" /> {/* Spark */}
         </svg>
       );
-    case 'ElectricReed': // 50x70
+    case '闪电芦苇': 
       return (
         <svg width={width} height={height} viewBox="0 0 50 70" xmlns="http://www.w3.org/2000/svg">
           <rect x="8" y="5" width="10" height="60" fill="#60A5FA" rx="3"/>
@@ -73,7 +72,7 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = (
           <circle cx="37" cy="5" r="4" fill="#FDE047" />
         </svg>
       );
-    case 'CeleryStalker': // 70x60
+    case '芹菜潜行者': 
       return (
         <svg width={width} height={height} viewBox="0 0 70 60" xmlns="http://www.w3.org/2000/svg">
           <ellipse cx="35" cy="52" rx="30" ry="8" fill="#556B2F" /> {/* Base */}
@@ -82,7 +81,7 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = (
           <path d="M25 45 L15 40 L20 35 Q35 40 40 35 L45 40 L35 48 Z" fill="darkgreen" /> {/* Eyes-like leaves */}
         </svg>
       );
-    case 'PepperPult': // 70x70
+    case '辣椒投手': 
       return (
         <svg width={width} height={height} viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
           <rect x="10" y="55" width="50" height="10" fill="#A0522D" rx="3"/> {/* Base */}
@@ -98,7 +97,7 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = (
 
 const RenderZombieSvg: FC<{ type: ZombieName; width: number; height: number }> = ({ type, width, height }) => {
   switch (type) {
-    case 'BasicZombie': // 60x80
+    case '普通僵尸': 
       return (
         <svg width={width} height={height} viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
           <rect x="12" y="28" width="36" height="47" fill="#787A77" rx="5"/> {/* Body */}
@@ -111,7 +110,7 @@ const RenderZombieSvg: FC<{ type: ZombieName; width: number; height: number }> =
           <line x1="25" y1="23" x2="35" y2="23" stroke="black" strokeWidth="1.5" /> {/* Mouth */}
         </svg>
       );
-    case 'ConeheadZombie': // 60x80
+    case '路障僵尸': 
       return (
         <svg width={width} height={height} viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
           <rect x="12" y="30" width="36" height="45" fill="#787A77" rx="5"/> {/* Body */}
@@ -127,7 +126,7 @@ const RenderZombieSvg: FC<{ type: ZombieName; width: number; height: number }> =
           <path d="M18,22 Q30,26 42,22 L30,0 Z" fill="#D35400" opacity="0.7"/>
         </svg>
       );
-    case 'DancingZombie': // 70x80
+    case '舞王僵尸': 
         return (
             <svg width={width} height={height} viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
               <rect x="15" y="28" width="40" height="47" fill="#8E44AD" rx="5"/> {/* Body - purple suit */}
@@ -141,7 +140,7 @@ const RenderZombieSvg: FC<{ type: ZombieName; width: number; height: number }> =
               <path d="M30 23 Q35 26 40 23" stroke="black" strokeWidth="1.5" fill="none"/> {/* Smile */}
             </svg>
         );
-    case 'Zomboss': // 120x120 scaled to imageWidth/Height, use viewBox 100x100 for simplicity
+    case '僵王博士': 
         return (
             <svg width={width} height={height} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
               <rect x="15" y="35" width="70" height="60" fill="#4A4A4A" rx="10"/> {/* Main Body - Darker */}
@@ -169,8 +168,8 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
       const isEvenRow = row % 2 === 0;
       const isEvenCol = col % 2 === 0;
       const cellBgClass = (isEvenRow && isEvenCol) || (!isEvenRow && !isEvenCol)
-        ? 'bg-green-200/50 dark:bg-green-800/50' // Lighter green tone
-        : 'bg-green-300/50 dark:bg-green-700/50'; // Darker green tone
+        ? 'bg-green-200/50 dark:bg-green-800/50' 
+        : 'bg-green-300/50 dark:bg-green-700/50'; 
       
       gridCells.push(
         <div
@@ -183,10 +182,9 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
           style={{ width: CELL_SIZE, height: CELL_SIZE }}
           onClick={() => onCellClick(row, col)}
           role="button"
-          aria-label={`Place plant at row ${row + 1}, column ${col + 1}`}
+          aria-label={`在行 ${row + 1}, 列 ${col + 1} 放置植物`}
           tabIndex={0}
         >
-          {/* Visual indicator for selected plant placement */}
           {selectedPlantName && (
             <div className="absolute inset-0 bg-yellow-400/20 pointer-events-none"></div>
           )}
@@ -207,7 +205,6 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
         {gridCells}
       </div>
       
-      {/* Render Plants */}
       {plants.map(plant => {
         const plantData = PLANTS_DATA[plant.type];
         return (
@@ -220,10 +217,9 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
               width: plantData.imageWidth,
               height: plantData.imageHeight,
             }}
-            title={`${plant.type} (HP: ${plant.health})`}
+            title={`${plantData.name} (生命值: ${plant.health})`}
           >
             <RenderPlantSvg type={plant.type} width={plantData.imageWidth} height={plantData.imageHeight} />
-            {/* Health bar for plants */}
              <div className="w-full h-1 bg-red-500 rounded-full mt-1">
               <div 
                 className="h-full bg-green-500 rounded-full" 
@@ -234,7 +230,6 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
         );
       })}
 
-      {/* Render Zombies */}
       {zombies.map(zombie => {
         const zombieData = ZOMBIES_DATA[zombie.type];
         const visualXOffset = (CELL_SIZE - zombieData.imageWidth) / 2;
@@ -250,10 +245,9 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
               width: zombieData.imageWidth,
               height: zombieData.imageHeight,
             }}
-            title={`${zombie.type} (HP: ${zombie.health})`}
+            title={`${zombieData.name} (生命值: ${zombie.health})`}
           >
             <RenderZombieSvg type={zombie.type} width={zombieData.imageWidth} height={zombieData.imageHeight} />
-             {/* Health bar for zombies */}
             <div className="w-full h-1 bg-gray-500 rounded-full mt-1">
               <div 
                 className="h-full bg-red-500 rounded-full" 
@@ -264,19 +258,18 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
         );
       })}
 
-      {/* Render Projectiles */}
       {projectiles.map(proj => (
         <div
           key={proj.id}
           className={cn(
             "absolute rounded-full",
-            proj.plantType === 'Peashooter' || proj.plantType === 'ElectricPeashooter' || proj.plantType === 'PepperPult' ? 'bg-green-500 w-3 h-3' : '',
-            proj.plantType === 'ElectricPeashooter' || proj.plantType === 'ElectricReed' ? 'bg-yellow-400 w-3 h-3 shadow-[0_0_5px_2px_theme(colors.yellow.300)]' : '',
-            proj.plantType === 'PepperPult' ? 'bg-orange-500 w-4 h-4' : ''
+            (proj.plantType === '豌豆射手' || proj.plantType === '电能豌豆射手' || proj.plantType === '辣椒投手') ? 'bg-green-500 w-3 h-3' : '',
+            (proj.plantType === '电能豌豆射手' || proj.plantType === '闪电芦苇') ? 'bg-yellow-400 w-3 h-3 shadow-[0_0_5px_2px_theme(colors.yellow.300)]' : '',
+            proj.plantType === '辣椒投手' ? 'bg-orange-500 w-4 h-4' : ''
           )}
           style={{
-            left: proj.x * CELL_SIZE + CELL_SIZE / 2 - 6, // Center projectile
-            top: proj.y * CELL_SIZE + CELL_SIZE / 2 - 6,  // Center projectile
+            left: proj.x * CELL_SIZE + CELL_SIZE / 2 - 6, 
+            top: proj.y * CELL_SIZE + CELL_SIZE / 2 - 6,  
           }}
         />
       ))}
@@ -285,5 +278,3 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
 };
 
 export default BattlefieldGrid;
-
-    

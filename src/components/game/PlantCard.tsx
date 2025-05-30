@@ -2,9 +2,8 @@
 "use client";
 
 import type { FC } from 'react';
-// Removed Image import
 import { Sun, Zap, Shield, Carrot, Leaf, CircleDollarSign } from 'lucide-react'; 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { PlantData, PlantName } from '@/types';
 import { cn } from '@/lib/utils';
@@ -17,24 +16,22 @@ interface PlantCardProps {
   showCost?: boolean;
 }
 
-// This SVG rendering logic is duplicated from BattlefieldGrid.tsx for simplicity.
-// In a larger app, this could be a shared component.
 const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, className?: string }> = ({ type, width, height, className }) => {
   switch (type) {
-    case 'Peashooter':
+    case '豌豆射手':
       return (
         <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" className={className}>
-          <rect x="25" y="40" width="10" height="20" fill="#38761D" /> {/* Stem */}
-          <circle cx="30" cy="25" r="20" fill="#6AA84F" /> {/* Head */}
-          <ellipse cx="45" cy="25" rx="8" ry="4" fill="#38761D" /> {/* Mouth/Snout */}
-          <circle cx="22" cy="18" r="5" fill="white" /><circle cx="22" cy="18" r="2.5" fill="black" /> {/* Eye */}
+          <rect x="25" y="40" width="10" height="20" fill="#38761D" /> 
+          <circle cx="30" cy="25" r="20" fill="#6AA84F" /> 
+          <ellipse cx="45" cy="25" rx="8" ry="4" fill="#38761D" /> 
+          <circle cx="22" cy="18" r="5" fill="white" /><circle cx="22" cy="18" r="2.5" fill="black" /> 
         </svg>
       );
-    case 'Sunflower':
+    case '太阳花':
       return (
         <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" className={className}>
-          <rect x="27" y="45" width="6" height="15" fill="#38761D" /> {/* Stem */}
-          <circle cx="30" cy="30" r="18" fill="#F1C232" /> {/* Center */}
+          <rect x="27" y="45" width="6" height="15" fill="#38761D" /> 
+          <circle cx="30" cy="30" r="18" fill="#F1C232" /> 
           <ellipse transform="rotate(0 30 30)" cx="30" cy="10" rx="7" ry="10" fill="#FFD966"/>
           <ellipse transform="rotate(45 30 30)" cx="30" cy="10" rx="7" ry="10" fill="#FFD966"/>
           <ellipse transform="rotate(90 30 30)" cx="30" cy="10" rx="7" ry="10" fill="#FFD966"/>
@@ -43,10 +40,10 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, class
           <ellipse transform="rotate(225 30 30)" cx="30" cy="10" rx="7" ry="10" fill="#FFD966"/>
           <ellipse transform="rotate(270 30 30)" cx="30" cy="10" rx="7" ry="10" fill="#FFD966"/>
           <ellipse transform="rotate(315 30 30)" cx="30" cy="10" rx="7" ry="10" fill="#FFD966"/>
-          <circle cx="30" cy="30" r="10" fill="#B45309" /> {/* Inner center */}
+          <circle cx="30" cy="30" r="10" fill="#B45309" /> 
         </svg>
       );
-    case 'WallNut':
+    case '坚果墙':
       return (
         <svg width={width} height={height} viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg" className={className}>
           <ellipse cx="30" cy="38" rx="28" ry="32" fill="#8D6E63" />
@@ -56,7 +53,7 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, class
           <circle cx="20" cy="30" r="3" fill="#5D4037" /> <circle cx="40" cy="45" r="3" fill="#5D4037" />
         </svg>
       );
-    case 'ElectricPeashooter':
+    case '电能豌豆射手':
       return (
         <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" className={className}>
           <rect x="25" y="40" width="10" height="20" fill="#1E3A8A" />
@@ -66,7 +63,7 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, class
           <path d="M50 20 L55 15 L53 22 L58 20 L50 30 L52 23 L48 25 Z" fill="#FDE047" />
         </svg>
       );
-    case 'ElectricReed':
+    case '闪电芦苇':
       return (
         <svg width={width} height={height} viewBox="0 0 50 70" xmlns="http://www.w3.org/2000/svg" className={className}>
           <rect x="8" y="5" width="10" height="60" fill="#60A5FA" rx="3"/>
@@ -77,7 +74,7 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, class
           <circle cx="37" cy="5" r="4" fill="#FDE047" />
         </svg>
       );
-    case 'CeleryStalker':
+    case '芹菜潜行者':
       return (
         <svg width={width} height={height} viewBox="0 0 70 60" xmlns="http://www.w3.org/2000/svg" className={className}>
           <ellipse cx="35" cy="52" rx="30" ry="8" fill="#556B2F" />
@@ -86,7 +83,7 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, class
           <path d="M25 45 L15 40 L20 35 Q35 40 40 35 L45 40 L35 48 Z" fill="darkgreen" />
         </svg>
       );
-    case 'PepperPult':
+    case '辣椒投手':
       return (
         <svg width={width} height={height} viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" className={className}>
           <rect x="10" y="55" width="50" height="10" fill="#A0522D" rx="3"/>
@@ -97,21 +94,6 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, class
       );
     default:
       return <div style={{ width, height, backgroundColor: 'lightgray', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', border: '1px solid black', boxSizing: 'border-box' }} className={className}>{type}</div>;
-  }
-};
-
-
-const PlantIcon: FC<{ name: PlantName, className?: string }> = ({ name, className }) => {
-  const iconProps = { className: cn("w-8 h-8", className) };
-  switch (name) {
-    case 'Peashooter': return <Leaf {...iconProps} />;
-    case 'Sunflower': return <Sun {...iconProps} />;
-    case 'WallNut': return <Shield {...iconProps} />;
-    case 'ElectricPeashooter': return <Zap {...iconProps} />;
-    case 'ElectricReed': return <Zap {...iconProps} className={cn("opacity-70", className)} />;
-    case 'CeleryStalker': return <Carrot {...iconProps} />; 
-    case 'PepperPult': return <Carrot {...iconProps} className={cn("text-destructive", className)} />; 
-    default: return <Leaf {...iconProps} />;
   }
 };
 
@@ -126,7 +108,7 @@ const PlantCard: FC<PlantCardProps> = ({ plant, onSelect, isSelected, disabled, 
       )}
       onClick={() => onSelect && !disabled && onSelect(plant.name)}
     >
-      <CardHeader className="p-3 items-center flex justify-center" style={{ height: plant.imageHeight > 70 ? plant.imageHeight + 10 : 80 /* ensure enough space for taller SVGs */ }}>
+      <CardHeader className="p-3 items-center flex justify-center" style={{ height: plant.imageHeight > 70 ? plant.imageHeight + 10 : 80 }}>
         <RenderPlantSvg 
             type={plant.name} 
             width={plant.imageWidth} 
@@ -150,9 +132,9 @@ const PlantCard: FC<PlantCardProps> = ({ plant, onSelect, isSelected, disabled, 
             size="sm" 
             className="w-full"
             disabled={disabled}
-            aria-label={`Select ${plant.name}`}
+            aria-label={`选择 ${plant.name}`}
           >
-            {isSelected ? "Selected" : "Select"}
+            {isSelected ? "已选择" : "选择"}
           </Button>
         </CardFooter>
       )}
@@ -161,5 +143,3 @@ const PlantCard: FC<PlantCardProps> = ({ plant, onSelect, isSelected, disabled, 
 };
 
 export default PlantCard;
-
-    
