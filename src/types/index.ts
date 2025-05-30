@@ -47,6 +47,8 @@ export interface PlantInstance {
   y: number; // grid row
   health: number;
   lastActionTime?: number; // For attack/sun generation timing
+  isAttacking?: boolean; // For attack animation
+  isProducingSun?: boolean; // For sunflower animation
 }
 
 export interface ZombieInstance {
@@ -56,16 +58,19 @@ export interface ZombieInstance {
   y: number; // grid row (lane)
   health: number;
   lastAttackTime?: number;
+  isHit?: boolean; // For damage taken animation
+  isDying?: boolean; // For death animation
 }
 
 export interface ProjectileInstance {
   id: string;
   x: number;
-  y: number;
+  y: number; // This is the logical grid row (lane)
   plantType: PlantName; // To determine projectile appearance/effect
   damage: number;
   targetZombieId?: string; // Optional, for homing projectiles
-  lane: number; // For straight-shooting projectiles
+  lane: number; // For straight-shooting projectiles - redundant with y but good for clarity
+  startX?: number; // For arc calculation if needed
 }
 
 export type GameState = 'Initializing' | 'Playing' | 'Paused' | 'Won' | 'Lost';

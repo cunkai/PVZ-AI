@@ -1,3 +1,4 @@
+
 import type { PlantData, PlantName, ZombieData, ZombieName } from '@/types';
 
 export const GRID_ROWS = 5;
@@ -10,6 +11,9 @@ export const SUNFLOWER_SUN_AMOUNT = 25;
 export const SUNFLOWER_PRODUCTION_INTERVAL = 10000; // 10 seconds
 
 export const PROJECTILE_SPEED = 5; // cells per second
+
+export const PEPPER_ARC_HEIGHT_CELLS = 0.6; // How high the arc goes, in terms of cell heights
+export const PEPPER_ARC_DISTANCE_CELLS = 3.5; // Over how many cells the arc completes visually
 
 export const PLANTS_DATA: Record<PlantName, PlantData> = {
   '豌豆射手': {

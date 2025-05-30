@@ -2,7 +2,7 @@
 "use client";
 
 import type { FC, ReactNode } from 'react';
-import { GRID_COLS, GRID_ROWS, CELL_SIZE, PLANTS_DATA, ZOMBIES_DATA } from '@/config/gameConfig';
+import { GRID_COLS, GRID_ROWS, CELL_SIZE, PLANTS_DATA, ZOMBIES_DATA, PEPPER_ARC_HEIGHT_CELLS, PEPPER_ARC_DISTANCE_CELLS } from '@/config/gameConfig';
 import type { PlantInstance, ZombieInstance, ProjectileInstance, PlantName, ZombieName } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -259,37 +259,58 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
       })}
 
       {projectiles.map(proj => {
-        let projectileClass = "absolute rounded-full";
-        let projectileSize = { width: 12, height: 12 }; // Default: w-3 h-3 (12px)
-        let offsetX = projectileSize.width / 2;
-        let offsetY = projectileSize.height / 2;
+        let projectileBaseClass = "absolute rounded-full";
+        let projectileStyle: React.CSSProperties = {};
+        let projectileSize = { width: 12, height: 12 }; // Default w-3 h-3 (12px)
 
-        if (proj.plantType === '豌豆射手') {
-          projectileClass = cn(projectileClass, "bg-green-500 w-3 h-3");
-        } else if (proj.plantType === '电能豌豆射手') {
-          projectileSize = { width: 14, height: 14 }; // w-3.5 h-3.5
-          projectileClass = cn(projectileClass, "bg-blue-500 w-3.5 h-3.5 shadow-[0_0_8px_3px_theme(colors.blue.400)]");
-        } else if (proj.plantType === '闪电芦苇') {
-          projectileSize = { width: 8, height: 16 }; // w-2 h-4
-          projectileClass = cn(projectileClass, "bg-yellow-400 w-2 h-4 transform rotate-[30deg] shadow-[0_0_6px_2px_theme(colors.yellow.300)]");
-        } else if (proj.plantType === '辣椒投手') {
-          projectileSize = { width: 16, height: 16 }; // w-4 h-4
-          projectileClass = cn(projectileClass, "bg-orange-600 w-4 h-4 shadow-[0_0_10px_4px_theme(colors.red.500)] animate-pulse");
-        } else {
-          projectileClass = cn(projectileClass, "bg-gray-400 w-3 h-3"); // Fallback
+        switch (proj.plantType) {
+          case '豌豆射手':
+            projectileBaseClass = cn(projectileBaseClass, "bg-green-500");
+            projectileSize = { width: 14, height: 14 }; // Slightly larger
+            break;
+          case '电能豌豆射手':
+            projectileBaseClass = cn(projectileBaseClass, "bg-blue-400");
+            projectileSize = { width: 16, height: 16 };
+            projectileStyle.boxShadow = "0 0 8px 3px rgba(59, 130, 246, 0.7)"; // theme(colors.blue.400) equivalent
+            break;
+          case '闪电芦苇':
+            projectileBaseClass = cn(projectileBaseClass, "bg-yellow-400 transform rotate-[30deg]");
+            projectileSize = { width: 6, height: 18 }; // Thin and long
+            projectileStyle.boxShadow = "0 0 6px 2px rgba(250, 204, 21, 0.6)"; // theme(colors.yellow.300)
+            break;
+          case '辣椒投手':
+            projectileBaseClass = cn(projectileBaseClass, "bg-orange-600");
+            projectileSize = { width: 20, height: 20 }; // Larger
+            projectileStyle.boxShadow = "0 0 10px 4px rgba(239, 68, 68, 0.7)"; // theme(colors.red.500)
+            
+            // Visual Parabolic Arc Calculation
+            const plantSource = plants.find(p => p.y === proj.lane && p.type === '辣椒投手'); // find the specific plant that shot this
+            const startX = plantSource ? (plantSource.x + 0.7) * CELL_SIZE : proj.x * CELL_SIZE; // Launch from plant's nozzle
+
+            const currentX = proj.x * CELL_SIZE + CELL_SIZE / 2 - projectileSize.width / 2;
+            const arcTotalDistancePixels = PEPPER_ARC_DISTANCE_CELLS * CELL_SIZE;
+            
+            let arcProgress = (currentX - startX) / arcTotalDistancePixels;
+            arcProgress = Math.max(0, Math.min(1, arcProgress)); // Clamp progress
+
+            const yOffset = Math.sin(arcProgress * Math.PI) * -(PEPPER_ARC_HEIGHT_CELLS * CELL_SIZE);
+            projectileStyle.transform = `translateY(${yOffset}px)`;
+            break;
+          default:
+            projectileBaseClass = cn(projectileBaseClass, "bg-gray-400");
+            break;
         }
         
-        offsetX = projectileSize.width / 2;
-        offsetY = projectileSize.height / 2;
+        projectileStyle.width = projectileSize.width;
+        projectileStyle.height = projectileSize.height;
+        projectileStyle.left = proj.x * CELL_SIZE + CELL_SIZE / 2 - projectileSize.width / 2;
+        projectileStyle.top = proj.y * CELL_SIZE + CELL_SIZE / 2 - projectileSize.height / 2;
 
         return (
           <div
             key={proj.id}
-            className={projectileClass}
-            style={{
-              left: proj.x * CELL_SIZE + CELL_SIZE / 2 - offsetX, 
-              top: proj.y * CELL_SIZE + CELL_SIZE / 2 - offsetY,
-            }}
+            className={projectileBaseClass}
+            style={projectileStyle}
             title={`发射物 (${proj.plantType})`}
           />
         );
