@@ -6,7 +6,7 @@ export const GRID_COLS = 9;
 export const CELL_SIZE = 80; // pixels, adjust as needed for UI
 export const GAME_TICK_MS = 100; // Main game loop interval
 
-export const INITIAL_SUNLIGHT = 150;
+export const INITIAL_SUNLIGHT = 100; // 初始阳光从 150 降低到 100
 export const SUNFLOWER_SUN_AMOUNT = 25;
 export const SUNFLOWER_PRODUCTION_INTERVAL = 10000; // 10 seconds
 
@@ -18,7 +18,7 @@ export const PEPPER_ARC_DISTANCE_CELLS = 3.5; // Over how many cells the arc com
 export const PLANTS_DATA: Record<PlantName, PlantData> = {
   '豌豆射手': {
     name: '豌豆射手',
-    cost: 100,
+    cost: 125, // 成本从 100 增加到 125
     health: 100,
     damage: 20,
     attackSpeed: 1, // 1 attack per second
@@ -27,7 +27,7 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
   },
   '太阳花': {
     name: '太阳花',
-    cost: 50,
+    cost: 60, // 成本从 50 增加到 60
     health: 80,
     sunProduction: SUNFLOWER_SUN_AMOUNT,
     sunInterval: SUNFLOWER_PRODUCTION_INTERVAL,
@@ -118,7 +118,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '路障僵尸': {
     name: '路障僵尸',
-    health: 250, // More health due to cone
+    health: 280, // 生命值从 250 增加到 280
     speed: 0.2,
     damage: 20,
     attackSpeed: 0.5,
@@ -141,11 +141,11 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
     damage: 100,
     attackSpeed: 0.3,
     description: '大BOSS！非常强悍。',
-    imageWidth: 100, imageHeight: 100, imageHint: 'zombie boss robot' // Adjusted from 120x120 for better fit
+    imageWidth: 100, imageHeight: 100, imageHint: 'zombie boss robot'
   },
   '铁桶僵尸': {
     name: '铁桶僵尸',
-    health: 500,
+    health: 580, // 生命值从 500 增加到 580
     speed: 0.2,
     damage: 20,
     attackSpeed: 0.5,
@@ -173,18 +173,18 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
 };
 
 export const ZOMBIE_SPAWN_INTERVAL_START = 15000; // 15 seconds for first zombie
-export const ZOMBIE_SPAWN_INTERVAL_MIN = 4000; // Minimum 4 seconds between spawns later
+export const ZOMBIE_SPAWN_INTERVAL_MIN = 3500; // Minimum 3.5 seconds between spawns later
 export const ZOMBIE_WAVES = [
   { count: 3, types: [ZOMBIES_DATA.普通僵尸] }, // Wave 1
-  { count: 5, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.路障僵尸] }, // Wave 2
-  { count: 4, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.小鬼僵尸] }, // Wave 3 - Introduce Imps
-  { count: 1, types: [ZOMBIES_DATA.舞王僵尸], delay: 8000 },  // Wave 4 - Dance
-  { count: 6, types: [ZOMBIES_DATA.路障僵尸, ZOMBIES_DATA.铁桶僵尸] }, // Wave 5 - Introduce Bucketheads
-  { count: 3, types: [ZOMBIES_DATA.橄榄球僵尸] , delay: 5000 }, // Wave 6 - Introduce Footballers
-  { count: 8, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.路障僵尸] }, // Wave 7 - Mixed
-  { count: 5, types: [ZOMBIES_DATA.铁桶僵尸, ZOMBIES_DATA.橄榄球僵尸] }, // Wave 8 - Heavy Hitters
-  { count: 2, types: [ZOMBIES_DATA.舞王僵尸], delay: 10000 }, // Wave 9 - Dance Party
-  { count: 1, types: [ZOMBIES_DATA.僵王博士], delay: 5000 }  // Wave 10 - Final Boss
+  { count: 6, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.路障僵尸] }, // Wave 2 - 数量增加
+  { count: 4, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.小鬼僵尸] }, // Wave 3
+  { count: 1, types: [ZOMBIES_DATA.舞王僵尸], delay: 8000 },  // Wave 4
+  { count: 7, types: [ZOMBIES_DATA.路障僵尸, ZOMBIES_DATA.铁桶僵尸] }, // Wave 5 - 数量增加
+  { count: 3, types: [ZOMBIES_DATA.橄榄球僵尸] , delay: 5000 }, // Wave 6
+  { count: 8, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.路障僵尸] }, // Wave 7
+  { count: 6, types: [ZOMBIES_DATA.铁桶僵尸, ZOMBIES_DATA.橄榄球僵尸] }, // Wave 8 - 数量增加
+  { count: 2, types: [ZOMBIES_DATA.舞王僵尸, ZOMBIES_DATA.小鬼僵尸], delay: 10000 }, // Wave 9 - 舞王带小弟
+  { count: 1, types: [ZOMBIES_DATA.僵王博士, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.小鬼僵尸], delay: 5000 }  // Wave 10 - Boss带2个小鬼
 ];
 
 // Distance from plant a zombie stops to attack

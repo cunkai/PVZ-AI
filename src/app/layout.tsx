@@ -1,3 +1,4 @@
+
 import type {Metadata} from 'next';
 import {Geist, Geist_Mono} from 'next/font/google';
 import './globals.css';
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: '僵尸大战植物 - Firebase Studio 演示',
-  description: '一个用 Next.js 和 Firebase Studio 构建的有趣的植物大战僵尸风格游戏演示。',
+  title: '僵尸入侵：家园保卫战！',
+  description: '一大波僵尸正在逼近！运用你的智慧和植物大军，在这场史诗般的塔防对决中保卫你的家园！由Firebase Studio强力驱动。',
 };
 
 export default function RootLayout({

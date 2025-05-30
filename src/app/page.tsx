@@ -50,6 +50,7 @@ export default function HomePage() {
   const lastSpawnTimeRef = useRef(0);
   const gameTimeRef = useRef(0);
   const { toast } = useToast();
+  const waveToastShownRef = useRef(false); // Ref to track if wave start toast has been shown
 
   const initializeGame = useCallback(() => {
     setSunlight(INITIAL_SUNLIGHT);
@@ -62,8 +63,14 @@ export default function HomePage() {
     setZombiesSpawnedThisWave(0);
     lastSpawnTimeRef.current = 0;
     gameTimeRef.current = 0;
+    waveToastShownRef.current = false;
     setGameState('Playing');
-  }, []);
+    toast({
+      title: "战斗开始！",
+      description: `第 1 波僵尸正在逼近！准备部署你的植物！`,
+      duration: 4000,
+    });
+  }, [toast]);
 
   useEffect(() => {
     initializeGame();
@@ -79,12 +86,12 @@ export default function HomePage() {
 
     const plantData = PLANTS_DATA[selectedPlantName];
     if (sunlight < plantData.cost) {
-      toast({ title: "提示", description: "阳光不足！", variant: "destructive" });
+      toast({ title: "阳光不足", description: "你需要更多阳光才能种植这种植物！", variant: "destructive" });
       return;
     }
 
     if (plants.some(p => p.x === col && p.y === row)) {
-      toast({ title: "提示", description: "单元格已被占据！", variant: "destructive" });
+      toast({ title: "无法种植", description: "这个单元格已经被其他植物占据了！", variant: "destructive" });
       return;
     }
 
@@ -131,11 +138,15 @@ export default function HomePage() {
       // Zombie Spawning
       if (currentWaveIndex < ZOMBIE_WAVES.length) {
         const waveData = ZOMBIE_WAVES[currentWaveIndex];
-        const spawnInterval = Math.max(ZOMBIE_SPAWN_INTERVAL_MIN, ZOMBIE_SPAWN_INTERVAL_START - (currentWaveIndex * 1000));
+         const baseInterval = Math.max(ZOMBIE_SPAWN_INTERVAL_MIN, ZOMBIE_SPAWN_INTERVAL_START - (currentWaveIndex * 500)); // Slower interval reduction per wave
+         const actualSpawnInterval = baseInterval * (0.85 + Math.random() * 0.3); // +/- 15% jitter
         
-        if (zombiesSpawnedThisWave < zombiesToSpawnThisWave && currentTime - lastSpawnTimeRef.current >= spawnInterval) {
+        if (zombiesSpawnedThisWave < zombiesToSpawnThisWave && currentTime - lastSpawnTimeRef.current >= actualSpawnInterval) {
           const randomLane = Math.floor(Math.random() * GRID_ROWS);
-          const zombieTypeData = waveData.types[Math.floor(Math.random() * waveData.types.length)];
+          // Ensure waveData.types exists and has elements
+          const zombieTypeData = waveData.types && waveData.types.length > 0 
+            ? waveData.types[Math.floor(Math.random() * waveData.types.length)] 
+            : ZOMBIES_DATA.普通僵尸; // Fallback to basic zombie if types is undefined/empty
           
           setZombies(prevZombies => [
             ...prevZombies,
@@ -157,7 +168,7 @@ export default function HomePage() {
       setPlants(prevPlants => {
         const newProjectiles: ProjectileInstance[] = [];
         const updatedPlants = prevPlants.map(plant => {
-          if (plant.isDying) return plant; // Don't process dying plants
+          if (plant.isDying) return plant; 
 
           const plantData = PLANTS_DATA[plant.type];
           if (plantData.damage && plantData.attackSpeed) { 
@@ -296,7 +307,21 @@ export default function HomePage() {
         setZombiesToSpawnThisWave(ZOMBIE_WAVES[nextWaveIndex].count);
         setZombiesSpawnedThisWave(0);
         lastSpawnTimeRef.current = currentTime + (ZOMBIE_WAVES[nextWaveIndex].delay || 0); 
+        waveToastShownRef.current = false; // Reset for next wave
       }
+
+      // Show wave start toast
+      if (!waveToastShownRef.current && gameState === 'Playing' && zombiesSpawnedThisWave === 0) {
+         if (currentWaveIndex > 0 || (currentWaveIndex === 0 && gameTimeRef.current > GAME_TICK_MS) ) { // Avoid double toast on init
+            toast({
+              title: `第 ${currentWaveIndex + 1} 波进攻！`,
+              description: `僵尸大军正在集结！准备迎战！`,
+              duration: 3000,
+            });
+            waveToastShownRef.current = true;
+         }
+      }
+
 
     }, GAME_TICK_MS);
 
@@ -337,7 +362,7 @@ export default function HomePage() {
               />
             ) : (
               <div style={{ width: GRID_COLS * CELL_SIZE, height: GRID_ROWS * CELL_SIZE }} className="flex items-center justify-center bg-gray-200/70 rounded-lg border-4 border-yellow-600 shadow-lg">
-                <p className="text-xl text-gray-500">战场加载中...</p>
+                <p className="text-xl text-gray-500">战场加载中，请稍候...</p>
               </div>
             )}
           </div>
@@ -353,8 +378,8 @@ export default function HomePage() {
         />
 
         <footer className="mt-6 text-center text-xs sm:text-sm text-muted-foreground/80">
-          <p>一个简单的植物大战僵尸演示游戏。祝你玩得开心！</p>
-          <p>提示：太阳花生产阳光。豌豆射手发射豌豆。请明智地放置！</p>
+          <p>勇敢的指挥官，你的花园正面临前所未有的威胁！运用你的智慧，合理部署植物，抵御一波又一波的僵尸入侵吧！</p>
+          <p>小提示：太阳花是你的经济命脉，豌豆射手是可靠的伙伴。坚果墙能为你争取宝贵时间！</p>
         </footer>
       </div>
     </DndProvider>
