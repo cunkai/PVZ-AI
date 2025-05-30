@@ -4,6 +4,7 @@ import type { FC } from 'react';
 import type { PlantData, PlantName } from '@/types';
 import PlantCard from './PlantCard';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Card } from "@/components/ui/card"; // Added import for Card
 
 interface PlantSelectionPanelProps {
   plantsData: Record<PlantName, PlantData>;
