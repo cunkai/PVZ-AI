@@ -176,6 +176,18 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, class
           <circle cx="20" cy="18" r="2.5" fill="black" /> <circle cx="35" cy="18" r="2.5" fill="black" /> {/* Pupils */}
         </svg>
       );
+    case '仙人掌':
+      return (
+        <svg width={width} height={height} viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg" className={className}>
+          <path d="M30 70 C20 70 15 60 15 50 C15 35 25 30 30 10 C35 30 45 35 45 50 C45 60 40 70 30 70 Z" fill="#558B2F"/>
+          <path d="M15 50 C5 50 0 40 5 30 C10 25 15 35 15 40 Z" fill="#689F38" transform="translate(-2, -5) rotate(-10 10 35)"/>
+          <path d="M45 50 C55 50 60 40 55 30 C50 25 45 35 45 40 Z" fill="#689F38" transform="translate(2, -5) rotate(10 50 35)"/>
+          <circle cx="30" cy="12" r="5" fill="#FFEB3B"/> <circle cx="30" cy="12" r="2.5" fill="#F9A825"/>
+          {[...Array(5)].map((_, i) => <line key={`s1-${i}`} x1={30 + (i-2)*5} y1="25" x2={30 + (i-2)*5} y2="28" stroke="#33691E" strokeWidth="1"/>)}
+          {[...Array(4)].map((_, i) => <line key={`s2-${i}`} x1={15 + (i-1.5)*4} y1="35" x2={15 + (i-1.5)*4} y2="38" stroke="#33691E" strokeWidth="1"/>)}
+          {[...Array(4)].map((_, i) => <line key={`s3-${i}`} x1={45 + (i-1.5)*4} y1="35" x2={45 + (i-1.5)*4} y2="38" stroke="#33691E" strokeWidth="1"/>)}
+        </svg>
+      );
     default:
       return <div style={{ width, height, backgroundColor: 'lightgray', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', border: '1px solid black', boxSizing: 'border-box' }} className={className}>{type}</div>;
   }
@@ -185,10 +197,11 @@ const PlantCard: FC<PlantCardProps> = ({ plant, onSelect, isSelected, disabled, 
   return (
     <Card 
       className={cn(
-        "w-full h-full flex flex-col cursor-pointer hover:shadow-lg transition-shadow duration-200",
+        "w-full h-full flex flex-col hover:shadow-lg transition-shadow duration-200",
         isSelected && "ring-2 ring-primary shadow-xl",
         disabled && "opacity-60 cursor-not-allowed",
-        !onSelect && "cursor-default" 
+        !onSelect && "cursor-default",
+        onSelect && !disabled && "cursor-pointer"
       )}
       onClick={() => onSelect && !disabled && onSelect(plant.name)}
     >

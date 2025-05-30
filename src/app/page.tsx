@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { DndProvider } from 'react-dnd'; 
 import { HTML5Backend } from 'react-dnd-html5-backend'; 
+import { Shovel } from 'lucide-react';
 
 import BattlefieldGrid from '@/components/game/BattlefieldGrid';
 import PlantSelectionPanel from '@/components/game/PlantSelectionPanel';
@@ -24,19 +25,20 @@ import {
   ZOMBIE_ATTACK_RANGE,
   CELL_SIZE,
 } from '@/config/gameConfig';
-import type { PlantInstance, ZombieInstance, PlantName, ZombieName, GameState, ProjectileInstance, PlantData } from '@/types';
+import type { PlantInstance, ZombieInstance, PlantName, ZombieName, GameState, ProjectileInstance, PlantData, MinerZombieState } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from "@/hooks/use-toast";
+import { cn } from '@/lib/utils';
 
 const DEATH_ANIMATION_DURATION = 500; 
 const PLANT_ATTACK_ANIMATION_DURATION = 300; 
 const SUNFLOWER_PRODUCE_ANIMATION_DURATION = 600; 
 const ZOMBIE_ATTACK_ANIMATION_DURATION = 400; 
 const ZOMBIE_HIT_ANIMATION_DURATION = 200; 
+const MINER_DIG_EMERGE_ANIMATION_DURATION = 300; // Visual part of digging/emerging
 
 const generateId = () => typeof uuidv4 === 'function' ? uuidv4() : Math.random().toString(36).substring(2, 15);
 
-// Prepare all plants data, sorted by cost for consistent display
 const ALL_PLANTS_SORTED = Object.values(PLANTS_DATA).sort((a, b) => a.cost - b.cost);
 
 export default function HomePage() {
@@ -49,6 +51,7 @@ export default function HomePage() {
   const [currentWaveIndex, setCurrentWaveIndex] = useState(0);
   const [zombiesToSpawnThisWave, setZombiesToSpawnThisWave] = useState(0);
   const [zombiesSpawnedThisWave, setZombiesSpawnedThisWave] = useState(0);
+  const [isShovelModeActive, setIsShovelModeActive] = useState(false);
   
   const lastSpawnTimeRef = useRef(0);
   const gameTimeRef = useRef(0);
@@ -56,7 +59,6 @@ export default function HomePage() {
   const waveToastShownRef = useRef(false); 
 
   const initializeGame = useCallback(() => {
-    // Plants for selection are now all available plants
     setSunlight(INITIAL_SUNLIGHT);
     setPlants([]);
     setZombies([]);
@@ -68,6 +70,7 @@ export default function HomePage() {
     lastSpawnTimeRef.current = 0;
     gameTimeRef.current = 0;
     waveToastShownRef.current = false;
+    setIsShovelModeActive(false);
     setGameState('Playing');
     toast({
       title: "战斗开始！",
@@ -82,11 +85,37 @@ export default function HomePage() {
 
 
   const handlePlantSelection = (plantName: PlantName) => {
+    if (isShovelModeActive) setIsShovelModeActive(false); // Deactivate shovel if plant selected
     setSelectedPlantName(prev => prev === plantName ? null : plantName);
   };
 
+  const handleToggleShovelMode = () => {
+    setSelectedPlantName(null); // Deactivate plant selection if shovel activated
+    setIsShovelModeActive(prev => !prev);
+  }
+
   const handleCellClick = (row: number, col: number) => {
-    if (!selectedPlantName || gameState !== 'Playing') return;
+    if (gameState !== 'Playing') return;
+
+    if (isShovelModeActive) {
+      const plantToRemoveIndex = plants.findIndex(p => p.x === col && p.y === row && !p.isDying);
+      if (plantToRemoveIndex !== -1) {
+        const plantIdToRemove = plants[plantToRemoveIndex].id;
+        setPlants(prevPlants => prevPlants.map(p => {
+          if (p.id === plantIdToRemove) {
+            return { ...p, health: 0, isDying: true, timeOfDeath: gameTimeRef.current }; 
+          }
+          return p;
+        }));
+        toast({ title: "植物已移除", description: "你成功使用了铲子！" });
+        setIsShovelModeActive(false); 
+      } else {
+        toast({ title: "操作无效", description: "这里没有植物可以移除。", variant: "destructive" });
+      }
+      return;
+    }
+
+    if (!selectedPlantName) return;
 
     const plantData = PLANTS_DATA[selectedPlantName];
     if (sunlight < plantData.cost) {
@@ -94,7 +123,7 @@ export default function HomePage() {
       return;
     }
 
-    if (plants.some(p => p.x === col && p.y === row)) {
+    if (plants.some(p => p.x === col && p.y === row && !p.isDying)) {
       toast({ title: "无法种植", description: "这个单元格已经被其他植物占据了！", variant: "destructive" });
       return;
     }
@@ -121,8 +150,10 @@ export default function HomePage() {
       gameTimeRef.current += GAME_TICK_MS;
       const currentTime = gameTimeRef.current;
 
+      // Plant actions (sun production, preparing to shoot)
       setPlants(prevPlants => 
         prevPlants.map(p => {
+          if (p.isDying) return p;
           const plantData = PLANTS_DATA[p.type];
           if (plantData.sunProduction && plantData.sunProduction > 0) {
             if (plantData.sunInterval && currentTime - (p.lastActionTime || 0) >= plantData.sunInterval) {
@@ -138,9 +169,10 @@ export default function HomePage() {
         })
       );
       
+      // Zombie Spawning
       if (currentWaveIndex < ZOMBIE_WAVES.length) {
         const waveData = ZOMBIE_WAVES[currentWaveIndex];
-         const baseInterval = Math.max(ZOMBIE_SPAWN_INTERVAL_MIN, ZOMBIE_SPAWN_INTERVAL_START - (currentWaveIndex * 500)); 
+         const baseInterval = Math.max(ZOMBIE_SPAWN_INTERVAL_MIN, ZOMBIE_SPAWN_INTERVAL_START - (currentWaveIndex * 300)); // Wave progression affects spawn rate
          const actualSpawnInterval = baseInterval * (0.85 + Math.random() * 0.3); 
         
         if (zombiesSpawnedThisWave < zombiesToSpawnThisWave && currentTime - lastSpawnTimeRef.current >= actualSpawnInterval) {
@@ -156,6 +188,9 @@ export default function HomePage() {
             y: randomLane,
             health: zombieTypeData.health,
             lastAttackTime: 0,
+            minerState: zombieTypeData.name === '矿工僵尸' ? 'WALKING' : undefined,
+            timeEnteredMinerState: zombieTypeData.name === '矿工僵尸' ? currentTime : undefined,
+            originalY: randomLane,
           };
 
           if (zombieTypeData.name === '报纸僵尸' && zombieTypeData.newspaperHealth) {
@@ -168,6 +203,7 @@ export default function HomePage() {
         }
       }
 
+      // Plant Shooting Logic
       setPlants(prevPlants => {
         const newProjectiles: ProjectileInstance[] = [];
         const updatedPlants = prevPlants.map(plant => {
@@ -177,9 +213,14 @@ export default function HomePage() {
           if (plantData.damage && plantData.attackSpeed) { 
             const attackIntervalMs = 1000 / plantData.attackSpeed;
             if (currentTime - (plant.lastActionTime || 0) >= attackIntervalMs) {
-              const targetableZombiesInLane = zombies.filter(z => !z.isDying && z.y === plant.y && z.x < GRID_COLS && z.x > plant.x - 0.5);
+              const targetableZombiesInLane = zombies.filter(z => 
+                !z.isDying && 
+                z.y === plant.y && 
+                z.x < GRID_COLS && 
+                z.x > plant.x - 0.5 &&
+                z.minerState !== 'UNDERGROUND' && z.minerState !== 'DIGGING' // Cannot target digging/underground miners
+              );
               if (targetableZombiesInLane.length > 0) {
-                // Basic targeting: closest zombie. More advanced targeting (e.g. for Scaredy-shroom) would go here.
                 const closestZombie = targetableZombiesInLane.sort((a,b) => a.x - b.x)[0];
                 if (closestZombie) {
                    newProjectiles.push({
@@ -192,12 +233,11 @@ export default function HomePage() {
                     startX: plant.x + 0.7,
                   });
 
-                  // Logic for Split Pea's backward shot (simplified)
-                  if (plant.type === '分裂豆') {
+                  if (plant.type === '分裂豆') { // Example for Split Pea
                     newProjectiles.push({
                       id: generateId(),
                       plantType: plant.type,
-                      x: plant.x - 0.2, // Start slightly behind
+                      x: plant.x - 0.2, 
                       y: plant.y,
                       damage: plantData.damage,
                       lane: plant.y,
@@ -223,6 +263,7 @@ export default function HomePage() {
         return updatedPlants;
       });
 
+      // Zombie Movement and Attack Logic
       setZombies(prevZombies => 
         prevZombies.map(zombie => {
           if (zombie.isDying) return zombie;
@@ -232,30 +273,114 @@ export default function HomePage() {
           let currentSpeed = zombie.isEnraged && zombieData.enragedSpeed ? zombieData.enragedSpeed : zombieData.speed;
           let updatedZombie = { ...zombie };
 
-          const plantInFront = plants.find(p => !p.isDying && p.y === zombie.y && Math.abs(p.x - zombie.x) < ZOMBIE_ATTACK_RANGE + 0.5 && p.x < zombie.x);
+          // Miner Zombie Logic
+          if (zombie.type === '矿工僵尸' && zombieData.canDig) {
+            const timeInCurrentState = currentTime - (zombie.timeEnteredMinerState || 0);
 
-          if (plantInFront) { 
-            const attackIntervalMs = 1000 / zombieData.attackSpeed;
-            if (currentTime - (zombie.lastAttackTime || 0) >= attackIntervalMs) {
-              setPlants(prevPs => prevPs.map(p => {
-                if (p.id === plantInFront.id && !p.isDying) {
-                  const newPlantHealth = Math.max(0, p.health - zombieData.damage);
-                  if (newPlantHealth <= 0 && !p.isDying) {
-                    return { ...p, health: 0, isDying: true, timeOfDeath: currentTime };
-                  }
-                  return { ...p, health: newPlantHealth };
+            switch (zombie.minerState) {
+              case 'WALKING':
+                if (zombie.x <= zombieData.digColumnTrigger!) {
+                  updatedZombie.minerState = 'PRE_DIGGING';
+                  updatedZombie.timeEnteredMinerState = currentTime;
+                  // Stop movement briefly before digging animation
+                } else {
+                   // Standard movement if not digging
+                    const plantInFrontStd = plants.find(p => !p.isDying && p.y === zombie.y && Math.abs(p.x - zombie.x) < ZOMBIE_ATTACK_RANGE + 0.5 && p.x < zombie.x);
+                    if (!plantInFrontStd) newX -= currentSpeed * (GAME_TICK_MS / 1000);
                 }
-                return p;
-              }));
-              updatedZombie.lastAttackTime = currentTime;
-              updatedZombie.isAttacking = true;
-              const zombieId = zombie.id;
-              setTimeout(() => {
-                setZombies(prev => prev.map(z => z.id === zombieId ? { ...z, isAttacking: false } : z));
-              }, ZOMBIE_ATTACK_ANIMATION_DURATION);
+                break;
+              case 'PRE_DIGGING':
+                // Short pause before actual digging animation starts
+                if (timeInCurrentState >= MINER_DIG_EMERGE_ANIMATION_DURATION / 2) {
+                    updatedZombie.minerState = 'DIGGING';
+                    updatedZombie.timeEnteredMinerState = currentTime;
+                }
+                break; // No movement
+              case 'DIGGING':
+                if (timeInCurrentState >= zombieData.digDuration!) {
+                  updatedZombie.minerState = 'UNDERGROUND';
+                  updatedZombie.timeEnteredMinerState = currentTime;
+                  updatedZombie.originalY = zombie.y; // Store Y before going underground
+                  // Zombie effectively disappears here for rendering logic
+                }
+                break; // No movement
+              case 'UNDERGROUND':
+                if (timeInCurrentState >= zombieData.undergroundTravelTime!) {
+                  updatedZombie.x = zombieData.emergeColumn!; // Emerge at target column
+                  // updatedZombie.y = updatedZombie.originalY!; // Emerge in the same lane for now
+                  updatedZombie.minerState = 'EMERGING';
+                  updatedZombie.timeEnteredMinerState = currentTime;
+                }
+                // No visible movement, x position updated upon emerging
+                break;
+              case 'EMERGING':
+                 if (timeInCurrentState >= zombieData.digDuration!) {
+                    updatedZombie.minerState = 'WALKING'; // Or ATTACKING if plant is right there
+                    updatedZombie.timeEnteredMinerState = currentTime;
+                 }
+                break; // No movement
             }
-          } else { 
-            newX -= currentSpeed * (GAME_TICK_MS / 1000);
+             if (updatedZombie.minerState === 'WALKING' || updatedZombie.minerState === undefined) {
+                // Standard attack logic for miner if it's walking/emerged
+                const plantInFront = plants.find(p => !p.isDying && p.y === zombie.y && Math.abs(p.x - zombie.x) < ZOMBIE_ATTACK_RANGE + 0.5 && (zombie.x > p.x)); // Miner can attack from left too
+                if (plantInFront) {
+                    // Miner attack logic (same as other zombies)
+                    const attackIntervalMs = 1000 / zombieData.attackSpeed;
+                    if (currentTime - (zombie.lastAttackTime || 0) >= attackIntervalMs) {
+                        // ... (miner attack plant logic - same as general zombie)
+                        setPlants(prevPs => prevPs.map(p => {
+                            if (p.id === plantInFront.id && !p.isDying) {
+                            const newPlantHealth = Math.max(0, p.health - zombieData.damage);
+                            if (newPlantHealth <= 0 && !p.isDying) {
+                                return { ...p, health: 0, isDying: true, timeOfDeath: currentTime };
+                            }
+                            return { ...p, health: newPlantHealth };
+                            }
+                            return p;
+                        }));
+                        updatedZombie.lastAttackTime = currentTime;
+                        updatedZombie.isAttacking = true;
+                        const zombieId = zombie.id;
+                        setTimeout(() => {
+                            setZombies(prev => prev.map(z => z.id === zombieId ? { ...z, isAttacking: false } : z));
+                        }, ZOMBIE_ATTACK_ANIMATION_DURATION);
+                    }
+                } else if (updatedZombie.minerState === 'WALKING' && zombie.x > 0) { // Miner might walk left after emerging
+                    newX += currentSpeed * (GAME_TICK_MS / 1000); // Assuming emerged miner walks left
+                    if (newX >= GRID_COLS -1) newX = GRID_COLS -1.01; // prevent going offscreen right
+                } else if (updatedZombie.minerState === 'WALKING' && zombie.x <=0) {
+                    // If miner walks off left screen, it's effectively a win for zombie.
+                    // This case should be handled by game loss condition if x < -0.5
+                }
+            }
+
+          } else { // Non-Miner Zombie Logic
+            const plantInFront = plants.find(p => !p.isDying && p.y === zombie.y && Math.abs(p.x - zombie.x) < ZOMBIE_ATTACK_RANGE + 0.5 && p.x < zombie.x);
+            if (plantInFront) { 
+              const attackIntervalMs = 1000 / zombieData.attackSpeed;
+              if (currentTime - (zombie.lastAttackTime || 0) >= attackIntervalMs) {
+                setPlants(prevPs => prevPs.map(p => {
+                  if (p.id === plantInFront.id && !p.isDying) {
+                    const newPlantHealth = Math.max(0, p.health - zombieData.damage);
+                    if (newPlantHealth <= 0 && !p.isDying) {
+                      return { ...p, health: 0, isDying: true, timeOfDeath: currentTime };
+                    }
+                    return { ...p, health: newPlantHealth };
+                  }
+                  return p;
+                }));
+                updatedZombie.lastAttackTime = currentTime;
+                updatedZombie.isAttacking = true;
+                const zombieId = zombie.id;
+                setTimeout(() => {
+                  setZombies(prev => prev.map(z => z.id === zombieId ? { ...z, isAttacking: false } : z));
+                }, ZOMBIE_ATTACK_ANIMATION_DURATION);
+              }
+            } else { 
+                if (zombie.minerState !== 'DIGGING' && zombie.minerState !== 'PRE_DIGGING' && zombie.minerState !== 'EMERGING' && zombie.minerState !== 'UNDERGROUND') {
+                     newX -= currentSpeed * (GAME_TICK_MS / 1000);
+                }
+            }
           }
           
           updatedZombie.x = newX;
@@ -263,17 +388,22 @@ export default function HomePage() {
         })
       );
       
+      // Projectile Movement and Hit Detection
       setProjectiles(prevProjectiles => {
         const stillActiveProjectiles: ProjectileInstance[] = [];
         prevProjectiles.forEach(proj => {
           let newProjX = proj.x + (proj.isBackward ? -PROJECTILE_SPEED : PROJECTILE_SPEED) * (GAME_TICK_MS / 1000);
           let hitZombie = false;
 
-          const zombiesInLane = zombies.filter(z => !z.isDying && z.y === proj.lane);
+          const zombiesInLane = zombies.filter(z => 
+                !z.isDying && 
+                z.y === proj.lane &&
+                z.minerState !== 'UNDERGROUND' && z.minerState !== 'DIGGING' // Projectiles pass through digging/underground miners
+            );
           for (const zombieTarget of zombiesInLane) {
             const hitCondition = proj.isBackward 
-              ? (newProjX < zombieTarget.x + 0.6 && newProjX > zombieTarget.x - 0.2) // Backward projectile hit box
-              : (newProjX > zombieTarget.x - 0.2 && newProjX < zombieTarget.x + 0.6); // Forward projectile hit box
+              ? (newProjX < zombieTarget.x + 0.6 && newProjX > zombieTarget.x - 0.2)
+              : (newProjX > zombieTarget.x - 0.2 && newProjX < zombieTarget.x + 0.6); 
             
             if (hitCondition && Math.abs(proj.y - zombieTarget.y) < 0.5) {
                setZombies(prevZ => prevZ.map(zInstance => {
@@ -283,14 +413,11 @@ export default function HomePage() {
                   let newNewspaperHealth = zInstance.currentNewspaperHealth;
                   let becameEnraged = false;
 
-                  // Newspaper Zombie logic
                   if (zInstance.type === '报纸僵尸' && zInstance.currentNewspaperHealth && zInstance.currentNewspaperHealth > 0) {
                     newNewspaperHealth = Math.max(0, zInstance.currentNewspaperHealth - damageToDeal);
                     if (newNewspaperHealth <= 0 && !zInstance.isEnraged) {
-                       // Newspaper destroyed, zombie takes no damage from this hit, becomes enraged
                        becameEnraged = true;
                     }
-                    // Damage is absorbed by newspaper, actual health not reduced yet unless newspaper is gone
                   } else {
                     newZombieHealth = Math.max(0, zInstance.health - damageToDeal);
                   }
@@ -320,6 +447,7 @@ export default function HomePage() {
         return stillActiveProjectiles;
       });
 
+      // Cleanup dead units after animation
       setPlants(currentPlants => currentPlants.filter(p => 
           !(p.isDying && p.timeOfDeath && currentTime >= (p.timeOfDeath + DEATH_ANIMATION_DURATION))
       ));
@@ -327,12 +455,14 @@ export default function HomePage() {
           !(z.isDying && z.timeOfDeath && currentTime >= (z.timeOfDeath + DEATH_ANIMATION_DURATION))
       ));
 
+      // Game Over Conditions
       if (zombies.some(z => !z.isDying && z.x <= -0.5)) { 
         setGameState('Lost');
         return;
       }
 
-      const activeZombies = zombies.filter(z => !z.isDying);
+      // Wave progression and Win Condition
+      const activeZombies = zombies.filter(z => !z.isDying && z.minerState !== 'UNDERGROUND'); // Don't count underground zombies for wave end
       if (currentWaveIndex >= ZOMBIE_WAVES.length -1 && zombiesSpawnedThisWave >= zombiesToSpawnThisWave && activeZombies.length === 0) {
         setGameState('Won');
         return;
@@ -374,7 +504,18 @@ export default function HomePage() {
       <div className="flex flex-col items-center justify-center min-h-screen p-2 sm:p-4 bg-gradient-to-br from-green-200 via-lime-200 to-emerald-200 dark:from-gray-800 dark:via-green-900 dark:to-teal-900">
         <header className="w-full max-w-4xl mb-4 flex justify-between items-center p-2 rounded-lg bg-primary/20 shadow-md">
           <h1 className="text-2xl sm:text-3xl font-bold text-primary drop-shadow-sm">僵尸入侵：家园保卫战！</h1>
-          <SunlightDisplay sunlight={sunlight} />
+          <div className="flex items-center gap-3">
+            <Button 
+              onClick={handleToggleShovelMode} 
+              variant={isShovelModeActive ? "destructive" : "secondary"}
+              size="icon"
+              title="使用铲子移除植物"
+              aria-label="切换铲子模式"
+            >
+              <Shovel className={cn("w-5 h-5", isShovelModeActive && "text-white")} />
+            </Button>
+            <SunlightDisplay sunlight={sunlight} />
+          </div>
         </header>
 
         <main className="flex flex-col md:flex-row gap-4 w-full max-w-6xl items-start">
@@ -384,6 +525,7 @@ export default function HomePage() {
               onSelectPlant={handlePlantSelection}
               selectedPlantName={selectedPlantName}
               currentSunlight={sunlight}
+              isShovelModeActive={isShovelModeActive}
             />
           </div>
           <div className="flex-grow flex justify-center md:order-1">
@@ -394,6 +536,7 @@ export default function HomePage() {
                 projectiles={projectiles}
                 onCellClick={handleCellClick}
                 selectedPlantName={selectedPlantName}
+                isShovelModeActive={isShovelModeActive}
               />
             ) : (
               <div style={{ width: GRID_COLS * CELL_SIZE, height: GRID_ROWS * CELL_SIZE }} className="flex items-center justify-center bg-gray-200/70 rounded-lg border-4 border-yellow-600 shadow-lg">
@@ -414,10 +557,9 @@ export default function HomePage() {
 
         <footer className="mt-6 text-center text-xs sm:text-sm text-muted-foreground/80">
           <p>勇敢的指挥官，你的花园正面临前所未有的威胁！运用你的智慧，合理部署植物，抵御一波又一波的僵尸入侵吧！</p>
-          <p>小提示：产阳光的植物是你的经济命脉（它们的名称在选择面板里是金色的哦！）。</p>
+          <p>小提示：产阳光的植物是你的经济命脉（它们的名称在选择面板里是金色的哦！）。使用 <Shovel className="inline w-3 h-3" /> 铲子可以移除植物。</p>
         </footer>
       </div>
     </DndProvider>
   );
 }
-

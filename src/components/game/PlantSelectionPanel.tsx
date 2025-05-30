@@ -8,17 +8,19 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 
 interface PlantSelectionPanelProps {
-  plantsToDisplay: PlantData[]; // Changed from plantsData
+  plantsToDisplay: PlantData[]; 
   onSelectPlant: (plantName: PlantName) => void;
   selectedPlantName: PlantName | null;
   currentSunlight: number;
+  isShovelModeActive: boolean; // Added to disable plant selection when shovel is active
 }
 
 const PlantSelectionPanel: FC<PlantSelectionPanelProps> = ({
-  plantsToDisplay, // Changed from plantsData
+  plantsToDisplay, 
   onSelectPlant,
   selectedPlantName,
   currentSunlight,
+  isShovelModeActive,
 }) => {
   return (
     <Card className="p-4 shadow-2xl bg-card backdrop-blur-sm fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-2xl md:relative md:bottom-auto md:left-auto md:transform-none md:max-w-xs">
@@ -29,9 +31,9 @@ const PlantSelectionPanel: FC<PlantSelectionPanelProps> = ({
             <PlantCard
               key={plant.name}
               plant={plant}
-              onSelect={onSelectPlant}
-              isSelected={selectedPlantName === plant.name}
-              disabled={currentSunlight < plant.cost}
+              onSelect={isShovelModeActive ? undefined : onSelectPlant} // Disable selection if shovel is active
+              isSelected={!isShovelModeActive && selectedPlantName === plant.name}
+              disabled={currentSunlight < plant.cost || isShovelModeActive}
               showCost={true}
               isSunProducer={plant.sunProduction && plant.sunProduction > 0}
             />

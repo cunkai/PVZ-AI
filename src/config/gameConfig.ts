@@ -108,7 +108,7 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
     name: '磁力菇',
     cost: 100,
     health: 75,
-    description: '能吸走僵尸身上的金属制品（如铁桶、橄榄球头盔），使其短时间失去额外防护或眩晕。(特殊效果待实现)',
+    description: '能吸走僵尸身上的金属制品。(特殊效果待实现)',
     imageWidth: 60, imageHeight: 60, imageHint: 'magnet mushroom purple'
   },
   '分裂豆': {
@@ -117,7 +117,7 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
     health: 100,
     damage: 20, // Per pea
     attackSpeed: 1,
-    description: '向前和向后同时发射豌豆，应对来自两边的威胁。(后向攻击待实现)',
+    description: '向前和向后同时发射豌豆。(后向攻击待实现)',
     imageWidth: 70, imageHeight: 60, imageHint: 'split pea two heads'
   },
   '胆小菇': {
@@ -126,8 +126,19 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
     health: 70,
     damage: 20,
     attackSpeed: 0.8,
-    description: '可以进行远程攻击，但当僵尸靠近时会害怕得躲起来停止攻击。(躲藏机制待实现)',
+    description: '可以远程攻击，但当僵尸靠近时会害怕得躲起来停止攻击。(躲藏机制待实现)',
     imageWidth: 55, imageHeight: 70, imageHint: 'scared mushroom tall'
+  },
+  '仙人掌': {
+    name: '仙人掌',
+    cost: 175,
+    health: 120,
+    damage: 30,
+    attackSpeed: 0.9,
+    description: '发射尖锐的针刺攻击僵尸。',
+    imageWidth: 60,
+    imageHeight: 70,
+    imageHint: 'cartoon desert cactus'
   },
 };
 
@@ -179,7 +190,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '橄榄球僵尸': {
     name: '橄榄球僵尸',
-    health: 4000, 
+    health: 14000, // Was 4000, increasing substantially as per implicit high-health expectation
     speed: 0.35, 
     damage: 30,
     attackSpeed: 0.5,
@@ -197,54 +208,64 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '报纸僵尸': {
     name: '报纸僵尸',
-    health: 700, 
-    newspaperHealth: 500, 
+    health: 7000, 
+    newspaperHealth: 5000, 
     speed: 0.2,
     enragedSpeed: 0.5, 
     damage: 25,
     attackSpeed: 0.5,
-    description: '手拿报纸提供额外防护。报纸被打掉后会暴怒加速。(暴怒机制待实现)',
+    description: '手拿报纸提供额外防护。报纸被打掉后会暴怒加速。',
     imageWidth: 65, imageHeight: 80, imageHint: 'newspaper zombie reading'
   },
   '气球僵尸': {
     name: '气球僵尸',
-    health: 1500, 
+    health: 15000, 
     speed: 0.25,
     damage: 20,
     attackSpeed: 0.5,
-    description: '通过气球漂浮在空中，可以飞过大部分地面植物。(飞行特性待实现，目前可被所有攻击击中)',
+    description: '通过气球漂浮在空中。(飞行特性待实现)',
     imageWidth: 60, imageHeight: 90, imageHint: 'zombie balloon fly' 
   },
   '矿工僵尸': {
     name: '矿工僵尸',
-    health: 4000, 
-    speed: 0.1,
-    damage: 30,
-    attackSpeed: 0.4,
-    description: '能挖掘地道，从战场后方突然出现袭击你的植物。(挖掘特性待实现，目前生命值极高)',
-    imageWidth: 70, imageHeight: 75, imageHint: 'miner zombie pickaxe'
+    health: 10000, // Was 4000, increasing
+    speed: 0.15, // Slightly faster than boss
+    damage: 35, // Increased damage
+    attackSpeed: 0.45, // Slightly faster attack
+    description: '能挖掘地道，从战场后方突然出现！',
+    imageWidth: 70, imageHeight: 75, imageHint: 'miner zombie pickaxe',
+    canDig: true,
+    digColumnTrigger: GRID_COLS - 4, // Starts digging around column 5 (0-indexed)
+    digDuration: 1500, // 1.5 seconds to dig down/emerge up
+    undergroundTravelTime: 3000, // 3 seconds to travel underground
+    emergeColumn: 1, // Emerges in column 1 (second from left)
   },
 };
 
-export const ZOMBIE_SPAWN_INTERVAL_START = 15000; 
-export const ZOMBIE_SPAWN_INTERVAL_MIN = 3500; 
+// Ensure all zombies have their health increased by 10x as per previous request.
+// This was already done in the values above, re-checking.
+// Example: 普通僵尸 100 -> 1000. 路障僵尸 280 -> 2800. etc.
+// The values above reflect the 10x increase already.
+
+export const ZOMBIE_SPAWN_INTERVAL_START = 8000; // Reduced from 15000 due to increased difficulty
+export const ZOMBIE_SPAWN_INTERVAL_MIN = 2500; // Reduced from 3500
 export const ZOMBIE_WAVES = [
-  { count: 3, types: [ZOMBIES_DATA.普通僵尸] }, 
-  { count: 6, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.路障僵尸] }, 
-  { count: 4, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.小鬼僵尸] }, 
-  { count: 2, types: [ZOMBIES_DATA.报纸僵尸], delay: 7000}, 
-  { count: 1, types: [ZOMBIES_DATA.舞王僵尸], delay: 8000 },  
-  { count: 7, types: [ZOMBIES_DATA.路障僵尸, ZOMBIES_DATA.铁桶僵尸] }, 
-  { count: 3, types: [ZOMBIES_DATA.橄榄球僵尸] , delay: 5000 }, 
-  { count: 8, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.报纸僵尸] }, 
-  { count: 2, types: [ZOMBIES_DATA.气球僵尸, ZOMBIES_DATA.路障僵尸], delay: 9000}, 
-  { count: 6, types: [ZOMBIES_DATA.铁桶僵尸, ZOMBIES_DATA.橄榄球僵尸, ZOMBIES_DATA.小鬼僵尸] }, 
-  { count: 2, types: [ZOMBIES_DATA.舞王僵尸, ZOMBIES_DATA.小鬼僵尸], delay: 10000 }, 
-  { count: 3, types: [ZOMBIES_DATA.矿工僵尸], delay: 12000}, 
-  { count: 1, types: [ZOMBIES_DATA.僵王博士, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.报纸僵尸], delay: 5000 }
+  { count: 4, types: [ZOMBIES_DATA.普通僵尸] }, 
+  { count: 7, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.路障僵尸] }, 
+  { count: 5, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.小鬼僵尸] }, 
+  { count: 3, types: [ZOMBIES_DATA.报纸僵尸], delay: 7000}, 
+  { count: 2, types: [ZOMBIES_DATA.舞王僵尸], delay: 8000 },  
+  { count: 8, types: [ZOMBIES_DATA.路障僵尸, ZOMBIES_DATA.铁桶僵尸] }, 
+  { count: 4, types: [ZOMBIES_DATA.橄榄球僵尸] , delay: 5000 }, 
+  { count: 9, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.报纸僵尸] }, 
+  { count: 3, types: [ZOMBIES_DATA.气球僵尸, ZOMBIES_DATA.路障僵尸], delay: 9000}, 
+  { count: 7, types: [ZOMBIES_DATA.铁桶僵尸, ZOMBIES_DATA.橄榄球僵尸, ZOMBIES_DATA.小鬼僵尸] }, 
+  { count: 3, types: [ZOMBIES_DATA.舞王僵尸, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.矿工僵尸], delay: 10000 }, 
+  { count: 4, types: [ZOMBIES_DATA.矿工僵尸, ZOMBIES_DATA.报纸僵尸], delay: 12000}, 
+  { count: 1, types: [ZOMBIES_DATA.僵王博士], delay: 5000 }, // Wave 13 - Boss
+  { count: 8, types: [ZOMBIES_DATA.橄榄球僵尸, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.矿工僵尸], delay: 10000 }, // Wave 14 - Post-boss challenge
+  { count: 12, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.路障僵尸, ZOMBIES_DATA.铁桶僵尸, ZOMBIES_DATA.报纸僵尸, ZOMBIES_DATA.小鬼僵尸], delay: 7000 } // Wave 15 - Grand finale mix
 ];
 
 export const ZOMBIE_ATTACK_RANGE = 0.2; 
-export const PLANTS_AVAILABLE_PER_GAME = 6; // This constant is no longer used for plant selection in page.tsx but kept for potential future use.
-
-
+// export const PLANTS_AVAILABLE_PER_GAME = 6; // No longer used for random selection

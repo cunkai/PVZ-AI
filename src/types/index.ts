@@ -10,9 +10,10 @@ export type PlantName =
   | '冰冻射手'
   | '火焰菇'
   | '双子向日葵'
-  | '磁力菇'      // New
-  | '分裂豆'      // New
-  | '胆小菇';     // New
+  | '磁力菇'
+  | '分裂豆'
+  | '胆小菇'
+  | '仙人掌'; // New
 
 export type ZombieName = 
   | '普通僵尸' 
@@ -22,9 +23,9 @@ export type ZombieName =
   | '铁桶僵尸'
   | '橄榄球僵尸'
   | '小鬼僵尸'
-  | '报纸僵尸'    // New
-  | '气球僵尸'    // New
-  | '矿工僵尸';   // New
+  | '报纸僵尸'
+  | '气球僵尸'
+  | '矿工僵尸';
 
 export interface PlantData {
   name: PlantName;
@@ -46,12 +47,18 @@ export interface ZombieData {
   speed: number; // Cells per second
   damage: number; // Damage to plants per attack
   attackSpeed: number; // Attacks per second
-  description: string;
+  description:string;
   imageWidth: number;
   imageHeight: number;
   imageHint: string; // Keep in English for AI hint
   newspaperHealth?: number; // For Newspaper Zombie
   enragedSpeed?: number; // For Newspaper Zombie after losing newspaper
+  // Miner Zombie specific properties
+  canDig?: boolean;
+  digColumnTrigger?: number; // Column at which miner considers digging
+  digDuration?: number; // Time in ms to complete digging/emerging
+  undergroundTravelTime?: number; // Time in ms to travel underground
+  emergeColumn?: number; // Column where miner emerges
 }
 
 export interface PlantInstance {
@@ -67,6 +74,8 @@ export interface PlantInstance {
   timeOfDeath?: number; 
 }
 
+export type MinerZombieState = 'WALKING' | 'PRE_DIGGING' | 'DIGGING' | 'UNDERGROUND' | 'EMERGING';
+
 export interface ZombieInstance {
   id: string;
   type: ZombieName;
@@ -80,6 +89,10 @@ export interface ZombieInstance {
   isHit?: boolean; 
   isDying?: boolean; 
   timeOfDeath?: number;
+  // Miner Zombie state
+  minerState?: MinerZombieState;
+  timeEnteredMinerState?: number; // Timestamp when current miner state began
+  originalY?: number; // To remember original lane when underground if needed
 }
 
 export interface ProjectileInstance {
