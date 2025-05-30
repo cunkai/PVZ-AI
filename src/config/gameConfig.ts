@@ -134,7 +134,7 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
 export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   '普通僵尸': {
     name: '普通僵尸',
-    health: 100,
+    health: 1000, // 100 * 10
     speed: 0.2, 
     damage: 20, 
     attackSpeed: 0.5, 
@@ -143,7 +143,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '路障僵尸': {
     name: '路障僵尸',
-    health: 280, 
+    health: 2800, // 280 * 10
     speed: 0.2,
     damage: 20,
     attackSpeed: 0.5,
@@ -152,7 +152,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '舞王僵尸': {
     name: '舞王僵尸', 
-    health: 300,
+    health: 3000, // 300 * 10
     speed: 0.25,
     damage: 25,
     attackSpeed: 0.6,
@@ -161,7 +161,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '僵王博士': {
     name: '僵王博士', 
-    health: 2000,
+    health: 20000, // 2000 * 10
     speed: 0.1,
     damage: 100,
     attackSpeed: 0.3,
@@ -170,7 +170,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '铁桶僵尸': {
     name: '铁桶僵尸',
-    health: 580, 
+    health: 5800, // 580 * 10
     speed: 0.2,
     damage: 20,
     attackSpeed: 0.5,
@@ -179,7 +179,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '橄榄球僵尸': {
     name: '橄榄球僵尸',
-    health: 400,
+    health: 4000, // 400 * 10
     speed: 0.35, 
     damage: 30,
     attackSpeed: 0.5,
@@ -188,7 +188,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '小鬼僵尸': {
     name: '小鬼僵尸',
-    health: 60, 
+    health: 600, // 60 * 10
     speed: 0.5, 
     damage: 15,
     attackSpeed: 0.8, 
@@ -197,10 +197,10 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '报纸僵尸': {
     name: '报纸僵尸',
-    health: 70, // Health of zombie itself
-    newspaperHealth: 50, // Health of newspaper
+    health: 700, // 70 * 10
+    newspaperHealth: 500, // 50 * 10
     speed: 0.2,
-    enragedSpeed: 0.5, // Speed after newspaper is gone
+    enragedSpeed: 0.5, 
     damage: 25,
     attackSpeed: 0.5,
     description: '手拿报纸提供额外防护。报纸被打掉后会暴怒加速。(暴怒机制待实现)',
@@ -208,16 +208,16 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '气球僵尸': {
     name: '气球僵尸',
-    health: 150,
+    health: 1500, // 150 * 10
     speed: 0.25,
     damage: 20,
     attackSpeed: 0.5,
     description: '通过气球漂浮在空中，可以飞过大部分地面植物。(飞行特性待实现，目前可被所有攻击击中)',
-    imageWidth: 60, imageHeight: 90, imageHint: 'zombie balloon fly' // Using 90 height for balloon
+    imageWidth: 60, imageHeight: 90, imageHint: 'zombie balloon fly' 
   },
   '矿工僵尸': {
     name: '矿工僵尸',
-    health: 400, // Very high health to simulate toughness
+    health: 4000, // 400 * 10
     speed: 0.1,
     damage: 30,
     attackSpeed: 0.4,
@@ -232,17 +232,18 @@ export const ZOMBIE_WAVES = [
   { count: 3, types: [ZOMBIES_DATA.普通僵尸] }, 
   { count: 6, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.路障僵尸] }, 
   { count: 4, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.小鬼僵尸] }, 
-  { count: 2, types: [ZOMBIES_DATA.报纸僵尸], delay: 7000}, // Introduce Newspaper Zombie
+  { count: 2, types: [ZOMBIES_DATA.报纸僵尸], delay: 7000}, 
   { count: 1, types: [ZOMBIES_DATA.舞王僵尸], delay: 8000 },  
   { count: 7, types: [ZOMBIES_DATA.路障僵尸, ZOMBIES_DATA.铁桶僵尸] }, 
   { count: 3, types: [ZOMBIES_DATA.橄榄球僵尸] , delay: 5000 }, 
   { count: 8, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.报纸僵尸] }, 
-  { count: 2, types: [ZOMBIES_DATA.气球僵尸, ZOMBIES_DATA.路障僵尸], delay: 9000}, // Introduce Balloon Zombie
+  { count: 2, types: [ZOMBIES_DATA.气球僵尸, ZOMBIES_DATA.路障僵尸], delay: 9000}, 
   { count: 6, types: [ZOMBIES_DATA.铁桶僵尸, ZOMBIES_DATA.橄榄球僵尸, ZOMBIES_DATA.小鬼僵尸] }, 
   { count: 2, types: [ZOMBIES_DATA.舞王僵尸, ZOMBIES_DATA.小鬼僵尸], delay: 10000 }, 
-  { count: 3, types: [ZOMBIES_DATA.矿工僵尸], delay: 12000}, // Introduce Digger Zombie
+  { count: 3, types: [ZOMBIES_DATA.矿工僵尸], delay: 12000}, 
   { count: 1, types: [ZOMBIES_DATA.僵王博士, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.报纸僵尸], delay: 5000 }
 ];
 
 export const ZOMBIE_ATTACK_RANGE = 0.2; 
-export const PLANTS_AVAILABLE_PER_GAME = 6; // Number of plants player can choose from each game
+export const PLANTS_AVAILABLE_PER_GAME = 6; 
+
