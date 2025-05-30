@@ -6,13 +6,19 @@ export type PlantName =
   | '电能豌豆射手' 
   | '闪电芦苇' 
   | '芹菜潜行者' 
-  | '辣椒投手';
+  | '辣椒投手'
+  | '冰冻射手'
+  | '火焰菇'
+  | '双子向日葵';
 
 export type ZombieName = 
   | '普通僵尸' 
   | '路障僵尸' 
   | '舞王僵尸' 
-  | '僵王博士';
+  | '僵王博士'
+  | '铁桶僵尸'
+  | '橄榄球僵尸'
+  | '小鬼僵尸';
 
 export interface PlantData {
   name: PlantName;

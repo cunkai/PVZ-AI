@@ -77,6 +77,33 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
     description: '投掷燃烧的辣椒。',
     imageWidth: 70, imageHeight: 70, imageHint: 'pepper catapult plant'
   },
+  '冰冻射手': {
+    name: '冰冻射手',
+    cost: 175,
+    health: 100,
+    damage: 20, // Slow effect to be implemented later
+    attackSpeed: 1,
+    description: '发射冰冻豌豆，附带减速效果。',
+    imageWidth: 60, imageHeight: 60, imageHint: 'ice peashooter'
+  },
+  '火焰菇': {
+    name: '火焰菇',
+    cost: 125,
+    health: 90,
+    damage: 30, // Single target, higher damage
+    attackSpeed: 0.5, // Shoots faster
+    description: '向僵尸喷射高伤害火球。',
+    imageWidth: 60, imageHeight: 60, imageHint: 'fire mushroom'
+  },
+  '双子向日葵': {
+    name: '双子向日葵',
+    cost: 125,
+    health: 80,
+    sunProduction: 50, // Double sun
+    sunInterval: SUNFLOWER_PRODUCTION_INTERVAL,
+    description: '生产双倍的阳光。',
+    imageWidth: 70, imageHeight: 70, imageHint: 'twin sunflower'
+  },
 };
 
 export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
@@ -114,18 +141,50 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
     damage: 100,
     attackSpeed: 0.3,
     description: '大BOSS！非常强悍。',
-    imageWidth: 120, imageHeight: 120, imageHint: 'zombie boss robot'
+    imageWidth: 100, imageHeight: 100, imageHint: 'zombie boss robot' // Adjusted from 120x120 for better fit
+  },
+  '铁桶僵尸': {
+    name: '铁桶僵尸',
+    health: 500,
+    speed: 0.2,
+    damage: 20,
+    attackSpeed: 0.5,
+    description: '头戴铁桶，防御力极高。',
+    imageWidth: 60, imageHeight: 80, imageHint: 'buckethead zombie'
+  },
+  '橄榄球僵尸': {
+    name: '橄榄球僵尸',
+    health: 400,
+    speed: 0.35, // Faster
+    damage: 30,
+    attackSpeed: 0.5,
+    description: '移动迅速且非常耐打的橄榄球僵尸。',
+    imageWidth: 70, imageHeight: 80, imageHint: 'football zombie'
+  },
+  '小鬼僵尸': {
+    name: '小鬼僵尸',
+    health: 60, // Frail
+    speed: 0.5, // Very fast
+    damage: 15,
+    attackSpeed: 0.8, // Attacks quickly
+    description: '小巧玲珑，速度飞快，但很脆弱。',
+    imageWidth: 45, imageHeight: 60, imageHint: 'imp zombie'
   },
 };
 
 export const ZOMBIE_SPAWN_INTERVAL_START = 15000; // 15 seconds for first zombie
-export const ZOMBIE_SPAWN_INTERVAL_MIN = 5000; // Minimum 5 seconds between spawns later
+export const ZOMBIE_SPAWN_INTERVAL_MIN = 4000; // Minimum 4 seconds between spawns later
 export const ZOMBIE_WAVES = [
-  { count: 3, types: [ZOMBIES_DATA.普通僵尸] },
-  { count: 5, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.路障僵尸] },
-  { count: 1, types: [ZOMBIES_DATA.舞王僵尸], delay: 10000 }, 
-  { count: 7, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.路障僵尸] },
-  { count: 1, types: [ZOMBIES_DATA.僵王博士] } 
+  { count: 3, types: [ZOMBIES_DATA.普通僵尸] }, // Wave 1
+  { count: 5, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.路障僵尸] }, // Wave 2
+  { count: 4, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.小鬼僵尸] }, // Wave 3 - Introduce Imps
+  { count: 1, types: [ZOMBIES_DATA.舞王僵尸], delay: 8000 },  // Wave 4 - Dance
+  { count: 6, types: [ZOMBIES_DATA.路障僵尸, ZOMBIES_DATA.铁桶僵尸] }, // Wave 5 - Introduce Bucketheads
+  { count: 3, types: [ZOMBIES_DATA.橄榄球僵尸] , delay: 5000 }, // Wave 6 - Introduce Footballers
+  { count: 8, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.路障僵尸] }, // Wave 7 - Mixed
+  { count: 5, types: [ZOMBIES_DATA.铁桶僵尸, ZOMBIES_DATA.橄榄球僵尸] }, // Wave 8 - Heavy Hitters
+  { count: 2, types: [ZOMBIES_DATA.舞王僵尸], delay: 10000 }, // Wave 9 - Dance Party
+  { count: 1, types: [ZOMBIES_DATA.僵王博士], delay: 5000 }  // Wave 10 - Final Boss
 ];
 
 // Distance from plant a zombie stops to attack
