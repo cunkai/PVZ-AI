@@ -6,7 +6,7 @@ export const GRID_COLS = 9;
 export const CELL_SIZE = 80; // pixels, adjust as needed for UI
 export const GAME_TICK_MS = 100; // Main game loop interval
 
-export const INITIAL_SUNLIGHT = 100; 
+export const INITIAL_SUNLIGHT = 200; 
 export const SUNFLOWER_SUN_AMOUNT = 25;
 export const SUNFLOWER_PRODUCTION_INTERVAL = 10000; // 10 seconds
 
@@ -134,7 +134,7 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
 export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   '普通僵尸': {
     name: '普通僵尸',
-    health: 1000, // 100 * 10
+    health: 1000, 
     speed: 0.2, 
     damage: 20, 
     attackSpeed: 0.5, 
@@ -143,7 +143,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '路障僵尸': {
     name: '路障僵尸',
-    health: 2800, // 280 * 10
+    health: 2800, 
     speed: 0.2,
     damage: 20,
     attackSpeed: 0.5,
@@ -152,7 +152,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '舞王僵尸': {
     name: '舞王僵尸', 
-    health: 3000, // 300 * 10
+    health: 3000, 
     speed: 0.25,
     damage: 25,
     attackSpeed: 0.6,
@@ -161,7 +161,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '僵王博士': {
     name: '僵王博士', 
-    health: 20000, // 2000 * 10
+    health: 20000, 
     speed: 0.1,
     damage: 100,
     attackSpeed: 0.3,
@@ -170,7 +170,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '铁桶僵尸': {
     name: '铁桶僵尸',
-    health: 5800, // 580 * 10
+    health: 5800, 
     speed: 0.2,
     damage: 20,
     attackSpeed: 0.5,
@@ -179,7 +179,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '橄榄球僵尸': {
     name: '橄榄球僵尸',
-    health: 4000, // 400 * 10
+    health: 4000, 
     speed: 0.35, 
     damage: 30,
     attackSpeed: 0.5,
@@ -188,7 +188,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '小鬼僵尸': {
     name: '小鬼僵尸',
-    health: 600, // 60 * 10
+    health: 600, 
     speed: 0.5, 
     damage: 15,
     attackSpeed: 0.8, 
@@ -197,8 +197,8 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '报纸僵尸': {
     name: '报纸僵尸',
-    health: 700, // 70 * 10
-    newspaperHealth: 500, // 50 * 10
+    health: 700, 
+    newspaperHealth: 500, 
     speed: 0.2,
     enragedSpeed: 0.5, 
     damage: 25,
@@ -208,7 +208,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '气球僵尸': {
     name: '气球僵尸',
-    health: 1500, // 150 * 10
+    health: 1500, 
     speed: 0.25,
     damage: 20,
     attackSpeed: 0.5,
@@ -217,7 +217,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '矿工僵尸': {
     name: '矿工僵尸',
-    health: 4000, // 400 * 10
+    health: 4000, 
     speed: 0.1,
     damage: 30,
     attackSpeed: 0.4,
@@ -245,5 +245,6 @@ export const ZOMBIE_WAVES = [
 ];
 
 export const ZOMBIE_ATTACK_RANGE = 0.2; 
-export const PLANTS_AVAILABLE_PER_GAME = 6; 
+export const PLANTS_AVAILABLE_PER_GAME = 6; // This constant is no longer used for plant selection in page.tsx but kept for potential future use.
+
 

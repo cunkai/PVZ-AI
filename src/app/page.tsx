@@ -23,7 +23,6 @@ import {
   PROJECTILE_SPEED,
   ZOMBIE_ATTACK_RANGE,
   CELL_SIZE,
-  PLANTS_AVAILABLE_PER_GAME
 } from '@/config/gameConfig';
 import type { PlantInstance, ZombieInstance, PlantName, ZombieName, GameState, ProjectileInstance, PlantData } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -37,6 +36,9 @@ const ZOMBIE_HIT_ANIMATION_DURATION = 200;
 
 const generateId = () => typeof uuidv4 === 'function' ? uuidv4() : Math.random().toString(36).substring(2, 15);
 
+// Prepare all plants data, sorted by cost for consistent display
+const ALL_PLANTS_SORTED = Object.values(PLANTS_DATA).sort((a, b) => a.cost - b.cost);
+
 export default function HomePage() {
   const [sunlight, setSunlight] = useState(INITIAL_SUNLIGHT);
   const [plants, setPlants] = useState<PlantInstance[]>([]);
@@ -47,46 +49,14 @@ export default function HomePage() {
   const [currentWaveIndex, setCurrentWaveIndex] = useState(0);
   const [zombiesToSpawnThisWave, setZombiesToSpawnThisWave] = useState(0);
   const [zombiesSpawnedThisWave, setZombiesSpawnedThisWave] = useState(0);
-  const [plantsForSelection, setPlantsForSelection] = useState<PlantData[]>([]);
   
   const lastSpawnTimeRef = useRef(0);
   const gameTimeRef = useRef(0);
   const { toast } = useToast();
   const waveToastShownRef = useRef(false); 
 
-  const selectPlantsForSession = useCallback(() => {
-    const allPlantTypes = Object.values(PLANTS_DATA);
-    const sunProducers = allPlantTypes.filter(p => p.sunProduction && p.sunProduction > 0);
-    const nonSunProducers = allPlantTypes.filter(p => !p.sunProduction || p.sunProduction <= 0);
-
-    let selectedPlantsDeck: PlantData[] = [];
-
-    if (sunProducers.length > 0) {
-      const randomSunProducer = sunProducers[Math.floor(Math.random() * sunProducers.length)];
-      selectedPlantsDeck.push(randomSunProducer);
-    } else {
-      console.warn("警告：没有可用的产阳光植物！");
-    }
-
-    const shuffledNonSunProducers = [...nonSunProducers].sort(() => 0.5 - Math.random());
-    const numOtherPlantsToSelect = Math.max(0, PLANTS_AVAILABLE_PER_GAME - selectedPlantsDeck.length);
-    
-    selectedPlantsDeck.push(...shuffledNonSunProducers.slice(0, numOtherPlantsToSelect));
-
-    // Ensure the deck is exactly PLANTS_AVAILABLE_PER_GAME size if possible, by adding more random plants if short
-    if (selectedPlantsDeck.length < PLANTS_AVAILABLE_PER_GAME && allPlantTypes.length > selectedPlantsDeck.length) {
-      const remainingPlants = allPlantTypes.filter(p => !selectedPlantsDeck.some(sp => sp.name === p.name));
-      const shuffledRemaining = [...remainingPlants].sort(() => 0.5 - Math.random());
-      selectedPlantsDeck.push(...shuffledRemaining.slice(0, PLANTS_AVAILABLE_PER_GAME - selectedPlantsDeck.length));
-    }
-    
-    // Final shuffle of the selected deck
-    setPlantsForSelection(selectedPlantsDeck.sort(() => 0.5 - Math.random()));
-  }, []);
-
-
   const initializeGame = useCallback(() => {
-    selectPlantsForSession();
+    // Plants for selection are now all available plants
     setSunlight(INITIAL_SUNLIGHT);
     setPlants([]);
     setZombies([]);
@@ -104,7 +74,7 @@ export default function HomePage() {
       description: `第 1 波僵尸正在逼近！准备部署你的植物！`,
       duration: 4000,
     });
-  }, [toast, selectPlantsForSession]);
+  }, [toast]);
 
   useEffect(() => {
     initializeGame();
@@ -410,7 +380,7 @@ export default function HomePage() {
         <main className="flex flex-col md:flex-row gap-4 w-full max-w-6xl items-start">
           <div className="flex-shrink-0 md:order-2">
             <PlantSelectionPanel
-              plantsToDisplay={plantsForSelection}
+              plantsToDisplay={ALL_PLANTS_SORTED}
               onSelectPlant={handlePlantSelection}
               selectedPlantName={selectedPlantName}
               currentSunlight={sunlight}
@@ -450,3 +420,4 @@ export default function HomePage() {
     </DndProvider>
   );
 }
+
