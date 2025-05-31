@@ -243,6 +243,66 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = (
           <path d="M45 30 Q43 33 45 36 Q47 33 45 30 M48 32 Q46 35 48 38 Q50 35 48 32" fill="#2ECC71" opacity="0.7"/> {/* Dripping poison */}
         </svg>
       );
+    case '仙桃':
+      return (
+        <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="30" cy="30" rx="25" ry="22" fill="#FFB6C1" /> {/* Light pink peach body */}
+          <path d="M30 8 C 35 15, 45 20, 30 30 C 15 20, 25 15, 30 8 Z" fill="#FF69B4" opacity="0.7" /> {/* Darker pink top cleft */}
+          <ellipse cx="30" cy="30" rx="20" ry="18" fill="#FFC0CB" opacity="0.5"/> {/* Inner highlight */}
+          <path d="M45 15 Q50 10 55 12 L50 20 Z" fill="#90EE90" /> {/* Leaf */}
+        </svg>
+      );
+    case '人参果':
+      return (
+        <svg width={width} height={height} viewBox="0 0 65 65" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32.5 60 Q20 55 15 40 Q10 20 25 10 Q32.5 0 40 10 Q55 20 50 40 Q45 55 32.5 60 Z" fill="#F4A460" /> {/* Ginseng body */}
+          <rect x="28.5" y="5" width="8" height="10" fill="#8B4513" /> {/* Stem for fruit */}
+          <circle cx="32.5" cy="10" r="8" fill="#FFD700" /> {/* Golden fruit */}
+          <circle cx="32.5" cy="10" r="5" fill="#FFA500" /> {/* Fruit highlight */}
+          <path d="M20 35 Q15 45 25 50" stroke="#8B4513" strokeWidth="2" fill="none" /> {/* Arm/Root 1 */}
+          <path d="M45 35 Q50 45 40 50" stroke="#8B4513" strokeWidth="2" fill="none" /> {/* Arm/Root 2 */}
+        </svg>
+      );
+    case '红毒刺':
+      return (
+        <svg width={width} height={height} viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="30" cy="60" rx="25" ry="10" fill="#8B0000" /> {/* Base */}
+          <path d="M20 60 C25 30 30 10 30 5 C30 10 35 30 40 60 Z" fill="#DC143C" /> {/* Main spike body */}
+          <path d="M15 50 L30 30 L45 50 Z" fill="#CD5C5C" /> {/* Side spikes */}
+          <circle cx="30" cy="10" r="4" fill="yellow" /> {/* Tip */}
+        </svg>
+      );
+    case '菜问':
+      return (
+        <svg width={width} height={height} viewBox="0 0 60 65" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="30" cy="55" rx="20" ry="10" fill="#556B2F" /> {/* Base */}
+          <rect x="25" y="30" width="10" height="25" fill="#6B8E23" /> {/* Stem */}
+          <ellipse cx="20" cy="25" rx="12" ry="18" fill="#8FBC8F" transform="rotate(-15 20 25)" /> {/* Left Fist Leaf */}
+          <ellipse cx="40" cy="25" rx="12" ry="18" fill="#8FBC8F" transform="rotate(15 40 25)" /> {/* Right Fist Leaf */}
+          <circle cx="18" cy="22" r="3" fill="white" /><circle cx="18" cy="22" r="1.5" fill="black" />
+          <circle cx="42" cy="22" r="3" fill="white" /><circle cx="42" cy="22" r="1.5" fill="black" />
+        </svg>
+      );
+    case '岩浆石榴':
+      return (
+        <svg width={width} height={height} viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="35" cy="35" r="30" fill="#8B0000" /> {/* Dark red pomegranate body */}
+          <path d="M20 20 Q35 5 50 20 L55 30 Q35 20 15 30 Z" fill="#A52A2A" /> {/* Top part */}
+          <circle cx="35" cy="15" r="5" fill="#550000" /> {/* Crown */}
+          <path d="M25 35 Q30 30 35 35 Q40 40 35 45 Q30 40 25 35 Z" fill="#FF4500" opacity="0.8" /> {/* Magma crack 1 */}
+          <path d="M40 30 Q35 38 40 45 Q45 38 40 30 Z" fill="#FFA500" opacity="0.7" /> {/* Magma crack 2 */}
+        </svg>
+      );
+    case '香蕉':
+      return (
+        <svg width={width} height={height} viewBox="0 0 70 75" xmlns="http://www.w3.org/2000/svg">
+          <rect x="25" y="25" width="20" height="45" fill="#A0522D" rx="5" /> {/* Launcher Body brown */}
+          <ellipse cx="35" cy="25" rx="15" ry="8" fill="#8B4513" /> {/* Launcher Top */}
+          <path d="M35 5 C 50 10, 55 25, 35 25 C 15 25, 20 10, 35 5 Z" fill="#FFD700" /> {/* Banana in launcher */}
+          <rect x="33" y="0" width="4" height="5" fill="#8B4513" /> {/* Banana stem */}
+          <path d="M20 65 L50 65 L45 70 L25 70 Z" fill="#666" /> {/* Base stand */}
+        </svg>
+      );
     default:
       return <div style={{ width, height, backgroundColor: 'lightgray', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', border: '1px solid black', boxSizing: 'border-box' }}>{type}</div>;
   }
@@ -697,6 +757,33 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
             projectileBaseClass = cn(projectileBaseClass, "bg-purple-600");
             projectileSize = { width: 14, height: 14 };
             projectileStyle.boxShadow = "0 0 7px 2px rgba(147, 51, 234, 0.6)";
+            break;
+          case '人参果':
+            projectileBaseClass = cn(projectileBaseClass, "bg-yellow-500");
+            projectileSize = { width: 18, height: 18 };
+            projectileStyle.boxShadow = "0 0 10px 4px rgba(255, 215, 0, 0.7)";
+            break;
+          case '红毒刺':
+            projectileBaseClass = cn(projectileBaseClass, "bg-red-700");
+            projectileSize = { width: 22, height: 10 }; // Spike-like
+            break;
+          case '菜问':
+            projectileBaseClass = cn(projectileBaseClass, "bg-lime-500");
+            projectileSize = { width: 16, height: 16 };
+            projectileStyle.borderRadius = "20%"; // more fist like
+            projectileStyle.boxShadow = "0 0 6px 2px rgba(132, 204, 22, 0.6)";
+            break;
+          case '岩浆石榴':
+            projectileBaseClass = cn(projectileBaseClass, "bg-orange-700");
+            projectileSize = { width: 22, height: 22 };
+            projectileStyle.borderRadius = "45% 55% 40% 60% / 60% 40% 55% 45%";
+            projectileStyle.boxShadow = "0 0 12px 5px rgba(255, 100, 0, 0.8)";
+            break;
+          case '香蕉':
+            projectileBaseClass = cn(projectileBaseClass, "bg-yellow-400 -rotate-45"); // Banana shape
+            projectileSize = { width: 24, height: 12 };
+            projectileStyle.borderRadius = "50% 50% 10px 10px / 100% 100% 20px 20px";
+            projectileStyle.border = "1px solid #DAA520";
             break;
           default:
             projectileBaseClass = cn(projectileBaseClass, "bg-gray-400");

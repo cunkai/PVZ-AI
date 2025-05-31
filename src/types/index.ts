@@ -18,7 +18,13 @@ export type PlantName =
   | '声能柚子'
   | '火焰豌豆射手'
   | '闪电豌豆射手'
-  | '毒液豌豆射手';
+  | '毒液豌豆射手'
+  | '仙桃'
+  | '人参果'
+  | '红毒刺'
+  | '菜问'
+  | '岩浆石榴'
+  | '香蕉';
 
 export type ZombieName = 
   | '普通僵尸' 
@@ -118,4 +124,3 @@ export interface GridCell {
   plant: PlantInstance | null;
   // Zombies are tracked separately with precise x coordinates for smoother movement
 }
-
