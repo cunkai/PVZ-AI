@@ -26,7 +26,7 @@ import {
   CELL_SIZE,
 } from '@/config/gameConfig';
 import type { PlantInstance, ZombieInstance, PlantName, ZombieName, GameState, ProjectileInstance, PlantData, MinerZombieState } from '@/types';
-import { v4 as uuidv4 } from 'uuid';
+import * as uuid from 'uuid'; // Changed import
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
 
@@ -35,9 +35,23 @@ const PLANT_ATTACK_ANIMATION_DURATION = 300;
 const SUNFLOWER_PRODUCE_ANIMATION_DURATION = 600; 
 const ZOMBIE_ATTACK_ANIMATION_DURATION = 400; 
 const ZOMBIE_HIT_ANIMATION_DURATION = 200; 
-const MINER_DIG_EMERGE_ANIMATION_DURATION = 300; // Visual part of digging/emerging
+const MINER_DIG_EMERGE_ANIMATION_DURATION = 300;
 
-const generateId = () => typeof uuidv4 === 'function' ? uuidv4() : Math.random().toString(36).substring(2, 15);
+// Updated generateId function
+const generateId = () => {
+  if (uuid && typeof uuid.v4 === 'function') {
+    try {
+      return uuid.v4();
+    } catch (e) {
+      console.error("uuid.v4() call failed, falling back to Math.random:", e);
+      // Fallback if uuid.v4() is available but throws an error during execution
+      return Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
+    }
+  }
+  // Fallback if uuid or uuid.v4 is not available as expected
+  return Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
+};
+
 
 const ALL_PLANTS_SORTED = Object.values(PLANTS_DATA).sort((a, b) => a.cost - b.cost);
 
@@ -85,12 +99,12 @@ export default function HomePage() {
 
 
   const handlePlantSelection = (plantName: PlantName) => {
-    if (isShovelModeActive) setIsShovelModeActive(false); // Deactivate shovel if plant selected
+    if (isShovelModeActive) setIsShovelModeActive(false); 
     setSelectedPlantName(prev => prev === plantName ? null : plantName);
   };
 
   const handleToggleShovelMode = () => {
-    setSelectedPlantName(null); // Deactivate plant selection if shovel activated
+    setSelectedPlantName(null); 
     setIsShovelModeActive(prev => !prev);
   }
 
@@ -150,7 +164,6 @@ export default function HomePage() {
       gameTimeRef.current += GAME_TICK_MS;
       const currentTime = gameTimeRef.current;
 
-      // Plant actions (sun production, preparing to shoot)
       setPlants(prevPlants => 
         prevPlants.map(p => {
           if (p.isDying) return p;
@@ -169,10 +182,9 @@ export default function HomePage() {
         })
       );
       
-      // Zombie Spawning
       if (currentWaveIndex < ZOMBIE_WAVES.length) {
         const waveData = ZOMBIE_WAVES[currentWaveIndex];
-         const baseInterval = Math.max(ZOMBIE_SPAWN_INTERVAL_MIN, ZOMBIE_SPAWN_INTERVAL_START - (currentWaveIndex * 300)); // Wave progression affects spawn rate
+         const baseInterval = Math.max(ZOMBIE_SPAWN_INTERVAL_MIN, ZOMBIE_SPAWN_INTERVAL_START - (currentWaveIndex * 300));
          const actualSpawnInterval = baseInterval * (0.85 + Math.random() * 0.3); 
         
         if (zombiesSpawnedThisWave < zombiesToSpawnThisWave && currentTime - lastSpawnTimeRef.current >= actualSpawnInterval) {
@@ -203,7 +215,6 @@ export default function HomePage() {
         }
       }
 
-      // Plant Shooting Logic
       setPlants(prevPlants => {
         const newProjectiles: ProjectileInstance[] = [];
         const updatedPlants = prevPlants.map(plant => {
@@ -218,7 +229,7 @@ export default function HomePage() {
                 z.y === plant.y && 
                 z.x < GRID_COLS && 
                 z.x > plant.x - 0.5 &&
-                z.minerState !== 'UNDERGROUND' && z.minerState !== 'DIGGING' // Cannot target digging/underground miners
+                z.minerState !== 'UNDERGROUND' && z.minerState !== 'DIGGING'
               );
               if (targetableZombiesInLane.length > 0) {
                 const closestZombie = targetableZombiesInLane.sort((a,b) => a.x - b.x)[0];
@@ -233,7 +244,7 @@ export default function HomePage() {
                     startX: plant.x + 0.7,
                   });
 
-                  if (plant.type === '分裂豆') { // Example for Split Pea
+                  if (plant.type === '分裂豆') {
                     newProjectiles.push({
                       id: generateId(),
                       plantType: plant.type,
@@ -263,7 +274,6 @@ export default function HomePage() {
         return updatedPlants;
       });
 
-      // Zombie Movement and Attack Logic
       setZombies(prevZombies => 
         prevZombies.map(zombie => {
           if (zombie.isDying) return zombie;
@@ -273,7 +283,6 @@ export default function HomePage() {
           let currentSpeed = zombie.isEnraged && zombieData.enragedSpeed ? zombieData.enragedSpeed : zombieData.speed;
           let updatedZombie = { ...zombie };
 
-          // Miner Zombie Logic
           if (zombie.type === '矿工僵尸' && zombieData.canDig) {
             const timeInCurrentState = currentTime - (zombie.timeEnteredMinerState || 0);
 
@@ -282,52 +291,43 @@ export default function HomePage() {
                 if (zombie.x <= zombieData.digColumnTrigger!) {
                   updatedZombie.minerState = 'PRE_DIGGING';
                   updatedZombie.timeEnteredMinerState = currentTime;
-                  // Stop movement briefly before digging animation
                 } else {
-                   // Standard movement if not digging
                     const plantInFrontStd = plants.find(p => !p.isDying && p.y === zombie.y && Math.abs(p.x - zombie.x) < ZOMBIE_ATTACK_RANGE + 0.5 && p.x < zombie.x);
                     if (!plantInFrontStd) newX -= currentSpeed * (GAME_TICK_MS / 1000);
                 }
                 break;
               case 'PRE_DIGGING':
-                // Short pause before actual digging animation starts
                 if (timeInCurrentState >= MINER_DIG_EMERGE_ANIMATION_DURATION / 2) {
                     updatedZombie.minerState = 'DIGGING';
                     updatedZombie.timeEnteredMinerState = currentTime;
                 }
-                break; // No movement
+                break;
               case 'DIGGING':
                 if (timeInCurrentState >= zombieData.digDuration!) {
                   updatedZombie.minerState = 'UNDERGROUND';
                   updatedZombie.timeEnteredMinerState = currentTime;
-                  updatedZombie.originalY = zombie.y; // Store Y before going underground
-                  // Zombie effectively disappears here for rendering logic
+                  updatedZombie.originalY = zombie.y;
                 }
-                break; // No movement
+                break;
               case 'UNDERGROUND':
                 if (timeInCurrentState >= zombieData.undergroundTravelTime!) {
-                  updatedZombie.x = zombieData.emergeColumn!; // Emerge at target column
-                  // updatedZombie.y = updatedZombie.originalY!; // Emerge in the same lane for now
+                  updatedZombie.x = zombieData.emergeColumn!; 
                   updatedZombie.minerState = 'EMERGING';
                   updatedZombie.timeEnteredMinerState = currentTime;
                 }
-                // No visible movement, x position updated upon emerging
                 break;
               case 'EMERGING':
-                 if (timeInCurrentState >= zombieData.digDuration!) {
-                    updatedZombie.minerState = 'WALKING'; // Or ATTACKING if plant is right there
+                 if (timeInCurrentState >= zombieData.digDuration!) { 
+                    updatedZombie.minerState = 'WALKING'; 
                     updatedZombie.timeEnteredMinerState = currentTime;
                  }
-                break; // No movement
+                break;
             }
              if (updatedZombie.minerState === 'WALKING' || updatedZombie.minerState === undefined) {
-                // Standard attack logic for miner if it's walking/emerged
-                const plantInFront = plants.find(p => !p.isDying && p.y === zombie.y && Math.abs(p.x - zombie.x) < ZOMBIE_ATTACK_RANGE + 0.5 && (zombie.x > p.x)); // Miner can attack from left too
+                const plantInFront = plants.find(p => !p.isDying && p.y === zombie.y && Math.abs(p.x - zombie.x) < ZOMBIE_ATTACK_RANGE + 0.5 && (zombie.x > p.x));
                 if (plantInFront) {
-                    // Miner attack logic (same as other zombies)
                     const attackIntervalMs = 1000 / zombieData.attackSpeed;
                     if (currentTime - (zombie.lastAttackTime || 0) >= attackIntervalMs) {
-                        // ... (miner attack plant logic - same as general zombie)
                         setPlants(prevPs => prevPs.map(p => {
                             if (p.id === plantInFront.id && !p.isDying) {
                             const newPlantHealth = Math.max(0, p.health - zombieData.damage);
@@ -345,16 +345,15 @@ export default function HomePage() {
                             setZombies(prev => prev.map(z => z.id === zombieId ? { ...z, isAttacking: false } : z));
                         }, ZOMBIE_ATTACK_ANIMATION_DURATION);
                     }
-                } else if (updatedZombie.minerState === 'WALKING' && zombie.x > 0) { // Miner might walk left after emerging
-                    newX += currentSpeed * (GAME_TICK_MS / 1000); // Assuming emerged miner walks left
-                    if (newX >= GRID_COLS -1) newX = GRID_COLS -1.01; // prevent going offscreen right
+                } else if (updatedZombie.minerState === 'WALKING' && zombie.x > 0) { 
+                    newX += currentSpeed * (GAME_TICK_MS / 1000); 
+                    if (newX >= GRID_COLS -1) newX = GRID_COLS -1.01; 
                 } else if (updatedZombie.minerState === 'WALKING' && zombie.x <=0) {
-                    // If miner walks off left screen, it's effectively a win for zombie.
-                    // This case should be handled by game loss condition if x < -0.5
+                    // Game loss condition handled elsewhere
                 }
             }
 
-          } else { // Non-Miner Zombie Logic
+          } else { 
             const plantInFront = plants.find(p => !p.isDying && p.y === zombie.y && Math.abs(p.x - zombie.x) < ZOMBIE_ATTACK_RANGE + 0.5 && p.x < zombie.x);
             if (plantInFront) { 
               const attackIntervalMs = 1000 / zombieData.attackSpeed;
@@ -388,7 +387,6 @@ export default function HomePage() {
         })
       );
       
-      // Projectile Movement and Hit Detection
       setProjectiles(prevProjectiles => {
         const stillActiveProjectiles: ProjectileInstance[] = [];
         prevProjectiles.forEach(proj => {
@@ -398,7 +396,7 @@ export default function HomePage() {
           const zombiesInLane = zombies.filter(z => 
                 !z.isDying && 
                 z.y === proj.lane &&
-                z.minerState !== 'UNDERGROUND' && z.minerState !== 'DIGGING' // Projectiles pass through digging/underground miners
+                z.minerState !== 'UNDERGROUND' && z.minerState !== 'DIGGING'
             );
           for (const zombieTarget of zombiesInLane) {
             const hitCondition = proj.isBackward 
@@ -447,7 +445,6 @@ export default function HomePage() {
         return stillActiveProjectiles;
       });
 
-      // Cleanup dead units after animation
       setPlants(currentPlants => currentPlants.filter(p => 
           !(p.isDying && p.timeOfDeath && currentTime >= (p.timeOfDeath + DEATH_ANIMATION_DURATION))
       ));
@@ -455,14 +452,12 @@ export default function HomePage() {
           !(z.isDying && z.timeOfDeath && currentTime >= (z.timeOfDeath + DEATH_ANIMATION_DURATION))
       ));
 
-      // Game Over Conditions
       if (zombies.some(z => !z.isDying && z.x <= -0.5)) { 
         setGameState('Lost');
         return;
       }
 
-      // Wave progression and Win Condition
-      const activeZombies = zombies.filter(z => !z.isDying && z.minerState !== 'UNDERGROUND'); // Don't count underground zombies for wave end
+      const activeZombies = zombies.filter(z => !z.isDying && z.minerState !== 'UNDERGROUND');
       if (currentWaveIndex >= ZOMBIE_WAVES.length -1 && zombiesSpawnedThisWave >= zombiesToSpawnThisWave && activeZombies.length === 0) {
         setGameState('Won');
         return;
