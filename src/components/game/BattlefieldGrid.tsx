@@ -213,6 +213,36 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = (
           <circle cx="38" cy="30" r="4" fill="#556B2F" />
         </svg>
       );
+    case '火焰豌豆射手':
+      return (
+        <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+          <rect x="25" y="40" width="10" height="20" fill="#B9441E" /> {/* Dark red stem */}
+          <circle cx="30" cy="25" r="20" fill="#E74C3C" /> {/* Red head */}
+          <ellipse cx="45" cy="25" rx="8" ry="4" fill="#C0392B" /> {/* Dark red mouth */}
+          <circle cx="22" cy="18" r="5" fill="white" /><circle cx="22" cy="18" r="2.5" fill="#F39C12" /> {/* Orange pupil */}
+          <path d="M28 5 Q30 0 32 5 Q35 8 30 15 Q25 8 28 5 Z" fill="#F1C40F" opacity="0.9"/> {/* Flame on head */}
+        </svg>
+      );
+    case '闪电豌豆射手':
+      return (
+        <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+          <rect x="25" y="40" width="10" height="20" fill="#2980B9" /> {/* Blue stem */}
+          <circle cx="30" cy="25" r="20" fill="#F1C40F" /> {/* Yellow head */}
+          <ellipse cx="45" cy="25" rx="8" ry="4" fill="#F39C12" /> {/* Orange mouth */}
+          <circle cx="22" cy="18" r="5" fill="white" /><circle cx="22" cy="18" r="2.5" fill="#2980B9" /> {/* Blue pupil */}
+          <path d="M48 15 L53 10 L51 17 L56 15 L48 25 L50 18 L46 20 Z" fill="#3498DB" /> {/* Lightning bolt */}
+        </svg>
+      );
+    case '毒液豌豆射手':
+      return (
+        <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+          <rect x="25" y="40" width="10" height="20" fill="#512E5F" /> {/* Dark purple stem */}
+          <circle cx="30" cy="25" r="20" fill="#8E44AD" /> {/* Purple head */}
+          <ellipse cx="45" cy="25" rx="8" ry="4" fill="#512E5F" /> {/* Dark purple mouth */}
+          <circle cx="22" cy="18" r="5" fill="#A2D9CE" /><circle cx="22" cy="18" r="2.5" fill="#1E8449" /> {/* Green pupil */}
+          <path d="M45 30 Q43 33 45 36 Q47 33 45 30 M48 32 Q46 35 48 38 Q50 35 48 32" fill="#2ECC71" opacity="0.7"/> {/* Dripping poison */}
+        </svg>
+      );
     default:
       return <div style={{ width, height, backgroundColor: 'lightgray', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', border: '1px solid black', boxSizing: 'border-box' }}>{type}</div>;
   }
@@ -542,6 +572,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
         let currentHealth = zombie.health;
         let maxHealth = zombieData.health;
         if(zombie.type === '报纸僵尸' && zombieData.newspaperHealth && zombie.currentNewspaperHealth !== undefined){
+            // For display purposes, add newspaper health to total, actual damage logic is separate
             currentHealth += zombie.currentNewspaperHealth; 
             maxHealth += zombieData.newspaperHealth;
         }
@@ -650,9 +681,22 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
             projectileBaseClass = cn(projectileBaseClass, "border-2 border-sky-400 bg-sky-200/30");
             projectileSize = { width: 20, height: 20 };
             projectileStyle.borderRadius = "50%";
-            // Add a simple animation or make it visually distinct (e.g. concentric circles if possible with simple CSS)
-            // For now, a distinct color and border.
-            projectileStyle.animation = "pulse-ring 1s infinite"; // Needs keyframe in globals.css
+            projectileStyle.animation = "pulse-ring 1s infinite"; 
+            break;
+          case '火焰豌豆射手':
+            projectileBaseClass = cn(projectileBaseClass, "bg-orange-500");
+            projectileSize = { width: 15, height: 15 };
+            projectileStyle.boxShadow = "0 0 8px 3px rgba(255, 120, 0, 0.7)";
+            break;
+          case '闪电豌豆射手':
+            projectileBaseClass = cn(projectileBaseClass, "bg-yellow-300");
+            projectileSize = { width: 16, height: 16 };
+            projectileStyle.boxShadow = "0 0 9px 4px rgba(253, 224, 71, 0.8)";
+            break;
+          case '毒液豌豆射手':
+            projectileBaseClass = cn(projectileBaseClass, "bg-purple-600");
+            projectileSize = { width: 14, height: 14 };
+            projectileStyle.boxShadow = "0 0 7px 2px rgba(147, 51, 234, 0.6)";
             break;
           default:
             projectileBaseClass = cn(projectileBaseClass, "bg-gray-400");

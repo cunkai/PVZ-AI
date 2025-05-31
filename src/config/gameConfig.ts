@@ -41,7 +41,7 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
     description: '坚固的防御植物。',
     imageWidth: 60, imageHeight: 70, imageHint: 'cartoon walnut'
   },
-  '电能豌豆射手': {
+  '电能豌豆射手': { // This is the existing blue electric one
     name: '电能豌豆射手',
     cost: 175,
     health: 100,
@@ -108,6 +108,8 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
     name: '磁力菇',
     cost: 100,
     health: 75,
+    damage: 0, // No direct damage, utility plant
+    attackSpeed: 0, // Or a very slow "attack" if it has an animation
     description: '能吸走僵尸身上的金属制品。(特殊效果待实现)',
     imageWidth: 60, imageHeight: 60, imageHint: 'magnet mushroom purple'
   },
@@ -117,7 +119,7 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
     health: 100,
     damage: 20, // Per pea
     attackSpeed: 1,
-    description: '向前和向后同时发射豌豆。',
+    description: '向前和向后同时发射豌豆。(后向攻击待实现)',
     imageWidth: 70, imageHeight: 60, imageHint: 'split pea two heads'
   },
   '胆小菇': {
@@ -162,12 +164,39 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
     imageHeight: 65,
     imageHint: 'sonic pomelo'
   },
+  '火焰豌豆射手': {
+    name: '火焰豌豆射手',
+    cost: 160,
+    health: 100,
+    damage: 25,
+    attackSpeed: 1,
+    description: '发射炽热的火焰豌豆。(持续燃烧效果待实现)',
+    imageWidth: 60, imageHeight: 60, imageHint: 'fire peashooter red'
+  },
+  '闪电豌豆射手': {
+    name: '闪电豌豆射手',
+    cost: 180,
+    health: 100,
+    damage: 22,
+    attackSpeed: 1.1,
+    description: '发射连锁闪电豌豆。(连锁效果待实现)',
+    imageWidth: 60, imageHeight: 60, imageHint: 'lightning peashooter yellow'
+  },
+  '毒液豌豆射手': {
+    name: '毒液豌豆射手',
+    cost: 150,
+    health: 100,
+    damage: 18,
+    attackSpeed: 1,
+    description: '发射剧毒的毒液豌豆。(中毒效果待实现)',
+    imageWidth: 60, imageHeight: 60, imageHint: 'venom peashooter purple'
+  },
 };
 
 export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   '普通僵尸': {
     name: '普通僵尸',
-    health: 1000, 
+    health: 1000 * 10, 
     speed: 0.2, 
     damage: 20, 
     attackSpeed: 0.5, 
@@ -176,7 +205,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '路障僵尸': {
     name: '路障僵尸',
-    health: 2800, 
+    health: 2800 * 10, 
     speed: 0.2,
     damage: 20,
     attackSpeed: 0.5,
@@ -185,7 +214,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '舞王僵尸': {
     name: '舞王僵尸', 
-    health: 3000, 
+    health: 3000 * 10, 
     speed: 0.25,
     damage: 25,
     attackSpeed: 0.6,
@@ -194,7 +223,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '僵王博士': {
     name: '僵王博士', 
-    health: 20000, 
+    health: 20000 * 10, 
     speed: 0.1,
     damage: 100,
     attackSpeed: 0.3,
@@ -203,7 +232,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '铁桶僵尸': {
     name: '铁桶僵尸',
-    health: 5800, 
+    health: 5800 * 10, 
     speed: 0.2,
     damage: 20,
     attackSpeed: 0.5,
@@ -212,7 +241,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '橄榄球僵尸': {
     name: '橄榄球僵尸',
-    health: 14000, 
+    health: 14000 * 10, // Health increased as per earlier request
     speed: 0.35, 
     damage: 30,
     attackSpeed: 0.5,
@@ -221,7 +250,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '小鬼僵尸': {
     name: '小鬼僵尸',
-    health: 600, 
+    health: 600 * 10, 
     speed: 0.5, 
     damage: 15,
     attackSpeed: 0.8, 
@@ -230,8 +259,8 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '报纸僵尸': {
     name: '报纸僵尸',
-    health: 7000, 
-    newspaperHealth: 5000, 
+    health: 7000 * 10, 
+    newspaperHealth: 5000 * 10, 
     speed: 0.2,
     enragedSpeed: 0.5, 
     damage: 25,
@@ -241,7 +270,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '气球僵尸': {
     name: '气球僵尸',
-    health: 15000, 
+    health: 15000 * 10, 
     speed: 0.25,
     damage: 20,
     attackSpeed: 0.5,
@@ -250,8 +279,8 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '矿工僵尸': {
     name: '矿工僵尸',
-    health: 10000, 
-    speed: 0.15, 
+    health: 10000 * 10, 
+    speed: 0.15, // Speed when walking normally
     damage: 35, 
     attackSpeed: 0.45, 
     description: '能挖掘地道，从战场后方突然出现！',
@@ -264,8 +293,8 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
 };
 
-export const ZOMBIE_SPAWN_INTERVAL_START = 8000; 
-export const ZOMBIE_SPAWN_INTERVAL_MIN = 2500; 
+export const ZOMBIE_SPAWN_INTERVAL_START = 7000; // Slightly reduced as per previous difficulty increase
+export const ZOMBIE_SPAWN_INTERVAL_MIN = 2200;  // Slightly reduced
 export const ZOMBIE_WAVES = [
   { count: 4, types: [ZOMBIES_DATA.普通僵尸] }, 
   { count: 7, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.路障僵尸] }, 
@@ -279,9 +308,10 @@ export const ZOMBIE_WAVES = [
   { count: 7, types: [ZOMBIES_DATA.铁桶僵尸, ZOMBIES_DATA.橄榄球僵尸, ZOMBIES_DATA.小鬼僵尸] }, 
   { count: 3, types: [ZOMBIES_DATA.舞王僵尸, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.矿工僵尸], delay: 10000 }, 
   { count: 4, types: [ZOMBIES_DATA.矿工僵尸, ZOMBIES_DATA.报纸僵尸], delay: 12000}, 
-  { count: 1, types: [ZOMBIES_DATA.僵王博士], delay: 5000 }, 
+  { count: 1, types: [ZOMBIES_DATA.僵王博士, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.小鬼僵尸], delay: 5000 }, 
   { count: 8, types: [ZOMBIES_DATA.橄榄球僵尸, ZOMBIES_DATA.小鬼僵尸, ZOMBIES_DATA.矿工僵尸], delay: 10000 }, 
   { count: 12, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.路障僵尸, ZOMBIES_DATA.铁桶僵尸, ZOMBIES_DATA.报纸僵尸, ZOMBIES_DATA.小鬼僵尸], delay: 7000 } 
 ];
 
 export const ZOMBIE_ATTACK_RANGE = 0.2; 
+

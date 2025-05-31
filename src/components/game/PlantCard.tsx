@@ -141,24 +141,24 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, class
     case '磁力菇':
       return (
         <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" className={className}>
-          <rect x="25" y="35" width="10" height="25" fill="#8A2BE2" rx="3"/> {/* Stem */}
-          <path d="M15 10 C 5 10, 5 35, 15 35 L 15 40 L 10 40 L 10 5 L 15 5 L 15 10 Z" fill="#C0C0C0" stroke="#A9A9A9" strokeWidth="2"/> {/* Left magnet arm */}
-          <path d="M45 10 C 55 10, 55 35, 45 35 L 45 40 L 50 40 L 50 5 L 45 5 L 45 10 Z" fill="#C0C0C0" stroke="#A9A9A9" strokeWidth="2"/> {/* Right magnet arm */}
-          <ellipse cx="30" cy="20" rx="18" ry="15" fill="#E6E6FA" /> {/* Head base */}
-          <path d="M15 5 Q30 -5 45 5" stroke="#A9A9A9" strokeWidth="2" fill="none"/> {/* Top curve */}
-          <circle cx="22" cy="20" r="4" fill="black" /> <circle cx="38" cy="20" r="4" fill="black" /> {/* Eyes */}
+          <rect x="25" y="35" width="10" height="25" fill="#8A2BE2" rx="3"/> 
+          <path d="M15 10 C 5 10, 5 35, 15 35 L 15 40 L 10 40 L 10 5 L 15 5 L 15 10 Z" fill="#C0C0C0" stroke="#A9A9A9" strokeWidth="2"/> 
+          <path d="M45 10 C 55 10, 55 35, 45 35 L 45 40 L 50 40 L 50 5 L 45 5 L 45 10 Z" fill="#C0C0C0" stroke="#A9A9A9" strokeWidth="2"/> 
+          <ellipse cx="30" cy="20" rx="18" ry="15" fill="#E6E6FA" /> 
+          <path d="M15 5 Q30 -5 45 5" stroke="#A9A9A9" strokeWidth="2" fill="none"/> 
+          <circle cx="22" cy="20" r="4" fill="black" /> <circle cx="38" cy="20" r="4" fill="black" /> 
         </svg>
       );
     case '分裂豆':
       return (
         <svg width={width} height={height} viewBox="0 0 70 60" xmlns="http://www.w3.org/2000/svg" className={className}>
-          <rect x="30" y="40" width="10" height="20" fill="#38761D" /> {/* Stem */}
-          <g> {/* Front Head */}
+          <rect x="30" y="40" width="10" height="20" fill="#38761D" /> 
+          <g> 
             <circle cx="35" cy="25" r="20" fill="#6AA84F" />
-            <ellipse cx="50" cy="25" rx="8" ry="4" fill="#38761D" /> {/* Mouth */}
-            <circle cx="27" cy="18" r="5" fill="white" /><circle cx="27" cy="18" r="2.5" fill="black" /> {/* Eye */}
+            <ellipse cx="50" cy="25" rx="8" ry="4" fill="#38761D" /> 
+            <circle cx="27" cy="18" r="5" fill="white" /><circle cx="27" cy="18" r="2.5" fill="black" /> 
           </g>
-          <g transform="translate(0, 5)"> {/* Back Head */}
+          <g transform="translate(0, 5)"> 
             <circle cx="15" cy="25" r="15" fill="#5A9A3F" /> 
             <ellipse cx="3" cy="25" rx="6" ry="3" fill="#38761D" /> 
              <circle cx="20" cy="18" r="4" fill="white" /><circle cx="20" cy="18" r="2" fill="black" /> 
@@ -168,12 +168,12 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, class
     case '胆小菇':
       return (
         <svg width={width} height={height} viewBox="0 0 55 70" xmlns="http://www.w3.org/2000/svg" className={className}>
-          <rect x="22" y="30" width="11" height="40" fill="#DDA0DD" rx="4"/> {/* Stem (lavender) */}
-          <ellipse cx="27.5" cy="20" rx="20" ry="18" fill="#EE82EE" /> {/* Cap Base (violet) - Changed from PLUM */}
-           <path d="M10 25 Q27.5 0 45 25" fill="#DA70D6" opacity="0.7" /> {/* Cap Top (orchid) */}
+          <rect x="22" y="30" width="11" height="40" fill="#DDA0DD" rx="4"/> 
+          <ellipse cx="27.5" cy="20" rx="20" ry="18" fill="#EE82EE" /> 
+           <path d="M10 25 Q27.5 0 45 25" fill="#DA70D6" opacity="0.7" /> 
           <circle cx="20" cy="18" r="6" fill="white" stroke="black" strokeWidth="1"><animate attributeName="r" values="6;4;6" dur="1s" repeatCount="indefinite" /></circle> 
           <circle cx="35" cy="18" r="6" fill="white" stroke="black" strokeWidth="1"><animate attributeName="r" values="6;4;6" dur="1s" repeatCount="indefinite" /></circle>
-          <circle cx="20" cy="18" r="2.5" fill="black" /> <circle cx="35" cy="18" r="2.5" fill="black" /> {/* Pupils */}
+          <circle cx="20" cy="18" r="2.5" fill="black" /> <circle cx="35" cy="18" r="2.5" fill="black" /> 
         </svg>
       );
     case '仙人掌':
@@ -191,24 +191,54 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, class
     case '火葫芦':
       return (
         <svg width={width} height={height} viewBox="0 0 65 70" xmlns="http://www.w3.org/2000/svg" className={className}>
-          <path d="M32.5 70 C15 70 10 55 10 40 Q10 20 25 10 C30 5 40 5 45 10 Q60 20 60 40 C60 55 50 70 32.5 70 Z" fill="#E67E22"/> {/* Gourd body */}
-          <path d="M25 10 Q32.5 0 45 10" fill="#F39C12"/> {/* Top part */}
-          <rect x="30" y="0" width="5" height="10" fill="#8B4513"/> {/* Stem */}
-          <circle cx="25" cy="25" r="5" fill="#FDEBD0"/> <circle cx="25" cy="25" r="2.5" fill="#D35400"/> {/* Eye 1 */}
-          <circle cx="40" cy="25" r="5" fill="#FDEBD0"/> <circle cx="40" cy="25" r="2.5" fill="#D35400"/> {/* Eye 2 */}
-          <path d="M28 35 Q32.5 40 37 35" stroke="#D35400" strokeWidth="2" fill="none"/> {/* Mouth */}
+          <path d="M32.5 70 C15 70 10 55 10 40 Q10 20 25 10 C30 5 40 5 45 10 Q60 20 60 40 C60 55 50 70 32.5 70 Z" fill="#E67E22"/> 
+          <path d="M25 10 Q32.5 0 45 10" fill="#F39C12"/> 
+          <rect x="30" y="0" width="5" height="10" fill="#8B4513"/> 
+          <circle cx="25" cy="25" r="5" fill="#FDEBD0"/> <circle cx="25" cy="25" r="2.5" fill="#D35400"/> 
+          <circle cx="40" cy="25" r="5" fill="#FDEBD0"/> <circle cx="40" cy="25" r="2.5" fill="#D35400"/> 
+          <path d="M28 35 Q32.5 40 37 35" stroke="#D35400" strokeWidth="2" fill="none"/> 
         </svg>
       );
     case '声能柚子':
       return (
         <svg width={width} height={height} viewBox="0 0 60 65" xmlns="http://www.w3.org/2000/svg" className={className}>
-          <ellipse cx="30" cy="35" rx="28" ry="30" fill="#FFEFD5" /> {/* Pomelo body - light orange/yellow */}
-          <ellipse cx="30" cy="35" rx="22" ry="24" fill="#FFF8DC" /> {/* Inner lighter part */}
-          <rect x="27" y="0" width="6" height="10" fill="#6B8E23"/> {/* Stem */}
-          <path d="M15 5 L20 15 L10 15 Z" fill="#9ACD32"/> {/* Leaf 1 */}
-          <path d="M45 5 L40 15 L50 15 Z" fill="#9ACD32"/> {/* Leaf 2 */}
-          <circle cx="22" cy="30" r="4" fill="#556B2F" /> {/* "Speaker" like eye 1 */}
-          <circle cx="38" cy="30" r="4" fill="#556B2F" /> {/* "Speaker" like eye 2 */}
+          <ellipse cx="30" cy="35" rx="28" ry="30" fill="#FFEFD5" /> 
+          <ellipse cx="30" cy="35" rx="22" ry="24" fill="#FFF8DC" /> 
+          <rect x="27" y="0" width="6" height="10" fill="#6B8E23"/> 
+          <path d="M15 5 L20 15 L10 15 Z" fill="#9ACD32"/> 
+          <path d="M45 5 L40 15 L50 15 Z" fill="#9ACD32"/> 
+          <circle cx="22" cy="30" r="4" fill="#556B2F" /> 
+          <circle cx="38" cy="30" r="4" fill="#556B2F" /> 
+        </svg>
+      );
+    case '火焰豌豆射手':
+      return (
+        <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" className={className}>
+          <rect x="25" y="40" width="10" height="20" fill="#B9441E" /> {/* Dark red stem */}
+          <circle cx="30" cy="25" r="20" fill="#E74C3C" /> {/* Red head */}
+          <ellipse cx="45" cy="25" rx="8" ry="4" fill="#C0392B" /> {/* Dark red mouth */}
+          <circle cx="22" cy="18" r="5" fill="white" /><circle cx="22" cy="18" r="2.5" fill="#F39C12" /> {/* Orange pupil */}
+          <path d="M28 5 Q30 0 32 5 Q35 8 30 15 Q25 8 28 5 Z" fill="#F1C40F" opacity="0.9"/> {/* Flame on head */}
+        </svg>
+      );
+    case '闪电豌豆射手':
+      return (
+        <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" className={className}>
+          <rect x="25" y="40" width="10" height="20" fill="#2980B9" /> {/* Blue stem */}
+          <circle cx="30" cy="25" r="20" fill="#F1C40F" /> {/* Yellow head */}
+          <ellipse cx="45" cy="25" rx="8" ry="4" fill="#F39C12" /> {/* Orange mouth */}
+          <circle cx="22" cy="18" r="5" fill="white" /><circle cx="22" cy="18" r="2.5" fill="#2980B9" /> {/* Blue pupil */}
+          <path d="M48 15 L53 10 L51 17 L56 15 L48 25 L50 18 L46 20 Z" fill="#3498DB" /> {/* Lightning bolt */}
+        </svg>
+      );
+    case '毒液豌豆射手':
+      return (
+        <svg width={width} height={height} viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" className={className}>
+          <rect x="25" y="40" width="10" height="20" fill="#512E5F" /> {/* Dark purple stem */}
+          <circle cx="30" cy="25" r="20" fill="#8E44AD" /> {/* Purple head */}
+          <ellipse cx="45" cy="25" rx="8" ry="4" fill="#512E5F" /> {/* Dark purple mouth */}
+          <circle cx="22" cy="18" r="5" fill="#A2D9CE" /><circle cx="22" cy="18" r="2.5" fill="#1E8449" /> {/* Green pupil */}
+          <path d="M45 30 Q43 33 45 36 Q47 33 45 30 M48 32 Q46 35 48 38 Q50 35 48 32" fill="#2ECC71" opacity="0.7"/> {/* Dripping poison */}
         </svg>
       );
     default:
