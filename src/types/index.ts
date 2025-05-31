@@ -13,7 +13,9 @@ export type PlantName =
   | '磁力菇'
   | '分裂豆'
   | '胆小菇'
-  | '仙人掌'; // New
+  | '仙人掌'
+  | '火葫芦'
+  | '声能柚子';
 
 export type ZombieName = 
   | '普通僵尸' 
@@ -113,3 +115,4 @@ export interface GridCell {
   plant: PlantInstance | null;
   // Zombies are tracked separately with precise x coordinates for smoother movement
 }
+

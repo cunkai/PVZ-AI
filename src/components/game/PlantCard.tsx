@@ -188,6 +188,29 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number, class
           {[...Array(4)].map((_, i) => <line key={`s3-${i}`} x1={45 + (i-1.5)*4} y1="35" x2={45 + (i-1.5)*4} y2="38" stroke="#33691E" strokeWidth="1"/>)}
         </svg>
       );
+    case '火葫芦':
+      return (
+        <svg width={width} height={height} viewBox="0 0 65 70" xmlns="http://www.w3.org/2000/svg" className={className}>
+          <path d="M32.5 70 C15 70 10 55 10 40 Q10 20 25 10 C30 5 40 5 45 10 Q60 20 60 40 C60 55 50 70 32.5 70 Z" fill="#E67E22"/> {/* Gourd body */}
+          <path d="M25 10 Q32.5 0 45 10" fill="#F39C12"/> {/* Top part */}
+          <rect x="30" y="0" width="5" height="10" fill="#8B4513"/> {/* Stem */}
+          <circle cx="25" cy="25" r="5" fill="#FDEBD0"/> <circle cx="25" cy="25" r="2.5" fill="#D35400"/> {/* Eye 1 */}
+          <circle cx="40" cy="25" r="5" fill="#FDEBD0"/> <circle cx="40" cy="25" r="2.5" fill="#D35400"/> {/* Eye 2 */}
+          <path d="M28 35 Q32.5 40 37 35" stroke="#D35400" strokeWidth="2" fill="none"/> {/* Mouth */}
+        </svg>
+      );
+    case '声能柚子':
+      return (
+        <svg width={width} height={height} viewBox="0 0 60 65" xmlns="http://www.w3.org/2000/svg" className={className}>
+          <ellipse cx="30" cy="35" rx="28" ry="30" fill="#FFEFD5" /> {/* Pomelo body - light orange/yellow */}
+          <ellipse cx="30" cy="35" rx="22" ry="24" fill="#FFF8DC" /> {/* Inner lighter part */}
+          <rect x="27" y="0" width="6" height="10" fill="#6B8E23"/> {/* Stem */}
+          <path d="M15 5 L20 15 L10 15 Z" fill="#9ACD32"/> {/* Leaf 1 */}
+          <path d="M45 5 L40 15 L50 15 Z" fill="#9ACD32"/> {/* Leaf 2 */}
+          <circle cx="22" cy="30" r="4" fill="#556B2F" /> {/* "Speaker" like eye 1 */}
+          <circle cx="38" cy="30" r="4" fill="#556B2F" /> {/* "Speaker" like eye 2 */}
+        </svg>
+      );
     default:
       return <div style={{ width, height, backgroundColor: 'lightgray', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', border: '1px solid black', boxSizing: 'border-box' }} className={className}>{type}</div>;
   }
@@ -245,3 +268,4 @@ const PlantCard: FC<PlantCardProps> = ({ plant, onSelect, isSelected, disabled, 
 };
 
 export default PlantCard;
+

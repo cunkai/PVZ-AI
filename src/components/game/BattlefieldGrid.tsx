@@ -190,6 +190,29 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = (
           {[...Array(4)].map((_, i) => <line key={`s3-${i}`} x1={45 + (i-1.5)*4} y1="35" x2={45 + (i-1.5)*4} y2="38" stroke="#33691E" strokeWidth="1"/>)}
         </svg>
       );
+    case '火葫芦':
+      return (
+        <svg width={width} height={height} viewBox="0 0 65 70" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32.5 70 C15 70 10 55 10 40 Q10 20 25 10 C30 5 40 5 45 10 Q60 20 60 40 C60 55 50 70 32.5 70 Z" fill="#E67E22"/>
+          <path d="M25 10 Q32.5 0 45 10" fill="#F39C12"/>
+          <rect x="30" y="0" width="5" height="10" fill="#8B4513"/>
+          <circle cx="25" cy="25" r="5" fill="#FDEBD0"/> <circle cx="25" cy="25" r="2.5" fill="#D35400"/>
+          <circle cx="40" cy="25" r="5" fill="#FDEBD0"/> <circle cx="40" cy="25" r="2.5" fill="#D35400"/>
+          <path d="M28 35 Q32.5 40 37 35" stroke="#D35400" strokeWidth="2" fill="none"/>
+        </svg>
+      );
+    case '声能柚子':
+      return (
+        <svg width={width} height={height} viewBox="0 0 60 65" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="30" cy="35" rx="28" ry="30" fill="#FFEFD5" />
+          <ellipse cx="30" cy="35" rx="22" ry="24" fill="#FFF8DC" />
+          <rect x="27" y="0" width="6" height="10" fill="#6B8E23"/>
+          <path d="M15 5 L20 15 L10 15 Z" fill="#9ACD32"/>
+          <path d="M45 5 L40 15 L50 15 Z" fill="#9ACD32"/>
+          <circle cx="22" cy="30" r="4" fill="#556B2F" />
+          <circle cx="38" cy="30" r="4" fill="#556B2F" />
+        </svg>
+      );
     default:
       return <div style={{ width, height, backgroundColor: 'lightgray', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', border: '1px solid black', boxSizing: 'border-box' }}>{type}</div>;
   }
@@ -427,9 +450,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
     <div 
       className={cn(
         "relative bg-transparent",
-        isShovelModeActive && "cursor-[url(/shovel-cursor.svg),_auto]" // Example custom cursor, needs shovel-cursor.svg in public
-        // Alternatively, use a generic cursor like "grab" or "cell"
-        // isShovelModeActive && "cursor-grab" 
+        isShovelModeActive && "cursor-[url(/shovel-cursor.svg),_auto]" 
       )}
       style={{ 
         width: (GRID_COLS * CELL_SIZE) + SPAWN_AREA_WIDTH, 
@@ -515,13 +536,13 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
         const visualYOffset = (CELL_SIZE - zombieData.imageHeight) / 2;
         
         if (zombie.type === '矿工僵尸' && zombie.minerState === 'UNDERGROUND') {
-            return null; // Don't render underground miners
+            return null; 
         }
 
         let currentHealth = zombie.health;
         let maxHealth = zombieData.health;
         if(zombie.type === '报纸僵尸' && zombieData.newspaperHealth && zombie.currentNewspaperHealth !== undefined){
-            currentHealth += zombie.currentNewspaperHealth; // For total bar length
+            currentHealth += zombie.currentNewspaperHealth; 
             maxHealth += zombieData.newspaperHealth;
         }
 
@@ -534,7 +555,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
                 'animate-zombie-attack': zombie.isAttacking,
                 'animate-zombie-hit': zombie.isHit,
                 'animate-unit-die': zombie.isDying,
-                'animate-zombie-walk': !zombie.isAttacking && !zombie.isDying && zombie.x < GRID_COLS - 0.1 && zombie.type !== '矿工僵尸', // Miner has custom animation logic
+                'animate-zombie-walk': !zombie.isAttacking && !zombie.isDying && zombie.x < GRID_COLS - 0.1 && zombie.type !== '矿工僵尸', 
                 'animate-miner-dig': zombie.type === '矿工僵尸' && zombie.minerState === 'DIGGING',
                 'animate-miner-emerge': zombie.type === '矿工僵尸' && zombie.minerState === 'EMERGING',
               }
@@ -559,7 +580,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
                 )}
                 <div 
                   className="h-full bg-red-500 rounded-full" 
-                  style={{ width: `${(zombie.health / zombieData.health) * 100}%` }} // Show health relative to base health
+                  style={{ width: `${(zombie.health / zombieData.health) * 100}%` }} 
                 />
               </div>
             )}
@@ -617,10 +638,21 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
             break;
           case '仙人掌':
             projectileBaseClass = cn(projectileBaseClass, "bg-green-700");
-            // Make it look like a spike
             projectileSize = { width: 20, height: 8 }; 
-            // For a horizontal spike, no rotation needed. If you want it angled:
-            // projectileStyle.transform = "rotate(15deg)"; 
+            break;
+          case '火葫芦':
+            projectileBaseClass = cn(projectileBaseClass, "bg-orange-500");
+            projectileSize = { width: 18, height: 18 };
+            projectileStyle.borderRadius = "40% 60% 70% 30% / 30% 50% 50% 70%"; // Flame-like shape
+            projectileStyle.boxShadow = "0 0 10px 3px rgba(255, 165, 0, 0.7)";
+            break;
+          case '声能柚子':
+            projectileBaseClass = cn(projectileBaseClass, "border-2 border-sky-400 bg-sky-200/30");
+            projectileSize = { width: 20, height: 20 };
+            projectileStyle.borderRadius = "50%";
+            // Add a simple animation or make it visually distinct (e.g. concentric circles if possible with simple CSS)
+            // For now, a distinct color and border.
+            projectileStyle.animation = "pulse-ring 1s infinite"; // Needs keyframe in globals.css
             break;
           default:
             projectileBaseClass = cn(projectileBaseClass, "bg-gray-400");
@@ -647,3 +679,4 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
 };
 
 export default BattlefieldGrid;
+

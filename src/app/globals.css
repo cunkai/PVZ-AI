@@ -140,6 +140,11 @@ body {
   0% { opacity: 0.5; transform: translateY(40%); }
   100% { opacity: 1; transform: translateY(0); }
 }
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0px rgba(103, 232, 249, 0.7), 0 0 0 0px rgba(103, 232, 249, 0.7); }
+  50% { box-shadow: 0 0 0 4px rgba(103, 232, 249, 0.3), 0 0 0 6px rgba(103, 232, 249, 0.2); }
+  100% { box-shadow: 0 0 0 0px rgba(103, 232, 249, 0.7), 0 0 0 0px rgba(103, 232, 249, 0.7); }
+}
 
 
 /* Animation Utility Classes */
@@ -173,3 +178,4 @@ body {
   cursor: url(/shovel-cursor.svg) 16 16, auto;
 }
 */
+
