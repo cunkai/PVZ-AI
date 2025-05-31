@@ -4,7 +4,7 @@
 import type { FC } from 'react';
 import { GameState } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Award, Frown, Play, Pause, RotateCcw, Info, ShieldAlert, Trophy } from 'lucide-react';
+import { Award, Brain, Play, Pause, RotateCcw, Info, ShieldAlert, Trophy } from 'lucide-react'; // Added Brain
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,7 +46,7 @@ const GameStatusDisplay: FC<GameStatusDisplayProps> = ({ gameState, currentWave,
   } else if (gameState === 'Lost') {
     title = "防线失守...";
     description = `很遗憾，僵尸突破了你的防线...但不要灰心！总结经验，调整策略，下次一定能夺回我们的花园！`;
-    Icon = ShieldAlert;
+    Icon = Brain; // Changed from ShieldAlert to Brain
   }
 
 
