@@ -6,7 +6,7 @@ export const GRID_COLS = 9;
 export const CELL_SIZE = 80; // pixels, adjust as needed for UI
 export const GAME_TICK_MS = 100; // Main game loop interval
 
-export const INITIAL_SUNLIGHT = 200; 
+export const INITIAL_SUNLIGHT = 1200; 
 export const SUNFLOWER_SUN_AMOUNT = 25;
 export const SUNFLOWER_PRODUCTION_INTERVAL = 10000; // 10 seconds
 
@@ -41,7 +41,7 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
     description: '坚固的防御植物。',
     imageWidth: 60, imageHeight: 70, imageHint: 'cartoon walnut'
   },
-  '电能豌豆射手': { // This is the existing blue electric one
+  '电能豌豆射手': { 
     name: '电能豌豆射手',
     cost: 175,
     health: 100,
@@ -108,8 +108,8 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
     name: '磁力菇',
     cost: 100,
     health: 75,
-    damage: 0, // No direct damage, utility plant
-    attackSpeed: 0, // Or a very slow "attack" if it has an animation
+    damage: 0, 
+    attackSpeed: 0, 
     description: '能吸走僵尸身上的金属制品。(特殊效果待实现)',
     imageWidth: 60, imageHeight: 60, imageHint: 'magnet mushroom purple'
   },
@@ -117,7 +117,7 @@ export const PLANTS_DATA: Record<PlantName, PlantData> = {
     name: '分裂豆',
     cost: 150,
     health: 100,
-    damage: 20, // Per pea
+    damage: 20, 
     attackSpeed: 1,
     description: '向前和向后同时发射豌豆。(后向攻击待实现)',
     imageWidth: 70, imageHeight: 60, imageHint: 'split pea two heads'
@@ -241,7 +241,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
   '橄榄球僵尸': {
     name: '橄榄球僵尸',
-    health: 14000 * 10, // Health increased as per earlier request
+    health: 14000 * 10, 
     speed: 0.35, 
     damage: 30,
     attackSpeed: 0.5,
@@ -280,7 +280,7 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   '矿工僵尸': {
     name: '矿工僵尸',
     health: 10000 * 10, 
-    speed: 0.15, // Speed when walking normally
+    speed: 0.15, 
     damage: 35, 
     attackSpeed: 0.45, 
     description: '能挖掘地道，从战场后方突然出现！',
@@ -293,8 +293,8 @@ export const ZOMBIES_DATA: Record<ZombieName, ZombieData> = {
   },
 };
 
-export const ZOMBIE_SPAWN_INTERVAL_START = 7000; // Slightly reduced as per previous difficulty increase
-export const ZOMBIE_SPAWN_INTERVAL_MIN = 2200;  // Slightly reduced
+export const ZOMBIE_SPAWN_INTERVAL_START = 7000; 
+export const ZOMBIE_SPAWN_INTERVAL_MIN = 2200;  
 export const ZOMBIE_WAVES = [
   { count: 4, types: [ZOMBIES_DATA.普通僵尸] }, 
   { count: 7, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.路障僵尸] }, 
@@ -313,5 +313,4 @@ export const ZOMBIE_WAVES = [
   { count: 12, types: [ZOMBIES_DATA.普通僵尸, ZOMBIES_DATA.路障僵尸, ZOMBIES_DATA.铁桶僵尸, ZOMBIES_DATA.报纸僵尸, ZOMBIES_DATA.小鬼僵尸], delay: 7000 } 
 ];
 
-export const ZOMBIE_ATTACK_RANGE = 0.2; 
-
+export const ZOMBIE_ATTACK_RANGE = 0.2;

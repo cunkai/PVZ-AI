@@ -3,7 +3,7 @@
 
 import type { FC, ReactNode } from 'react';
 import { GRID_COLS, GRID_ROWS, CELL_SIZE, PLANTS_DATA, ZOMBIES_DATA, PEPPER_ARC_HEIGHT_CELLS, PEPPER_ARC_DISTANCE_CELLS } from '@/config/gameConfig';
-import type { PlantInstance, ZombieInstance, ProjectileInstance, PlantName, ZombieName } from '@/types';
+import type { PlantInstance, ZombieInstance, ProjectileInstance, PlantName, ZombieName, MinerZombieState } from '@/types';
 import { cn } from '@/lib/utils';
 
 const SPAWN_AREA_WIDTH = CELL_SIZE * 0.75; 
@@ -248,7 +248,7 @@ const RenderPlantSvg: FC<{ type: PlantName; width: number; height: number }> = (
   }
 };
 
-const RenderZombieSvg: FC<{ type: ZombieName; width: number; height: number; isEnraged?: boolean; minerState?: string }> = ({ type, width, height, isEnraged, minerState }) => {
+const RenderZombieSvg: FC<{ type: ZombieName; width: number; height: number; isEnraged?: boolean; minerState?: MinerZombieState }> = ({ type, width, height, isEnraged, minerState }) => {
   let specificWrapperStyle: React.CSSProperties = {};
   if (type === '矿工僵尸') {
     if (minerState === 'DIGGING') {
@@ -572,7 +572,6 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
         let currentHealth = zombie.health;
         let maxHealth = zombieData.health;
         if(zombie.type === '报纸僵尸' && zombieData.newspaperHealth && zombie.currentNewspaperHealth !== undefined){
-            // For display purposes, add newspaper health to total, actual damage logic is separate
             currentHealth += zombie.currentNewspaperHealth; 
             maxHealth += zombieData.newspaperHealth;
         }
@@ -597,6 +596,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
               width: zombieData.imageWidth,
               height: zombieData.imageHeight,
               zIndex: zombie.isDying ? 15 : (zombie.type === '矿工僵尸' && (zombie.minerState === 'DIGGING' || zombie.minerState === 'EMERGING') ? 18 : 20), 
+              pointerEvents: 'none',
             }}
             title={`${zombieData.name} (生命值: ${zombie.health}${zombie.type === '报纸僵尸' && zombie.currentNewspaperHealth && zombie.currentNewspaperHealth > 0 ? ` / 报纸: ${zombie.currentNewspaperHealth}` : ''})`}
           >
@@ -674,7 +674,7 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
           case '火葫芦':
             projectileBaseClass = cn(projectileBaseClass, "bg-orange-500");
             projectileSize = { width: 18, height: 18 };
-            projectileStyle.borderRadius = "40% 60% 70% 30% / 30% 50% 50% 70%"; // Flame-like shape
+            projectileStyle.borderRadius = "40% 60% 70% 30% / 30% 50% 50% 70%"; 
             projectileStyle.boxShadow = "0 0 10px 3px rgba(255, 165, 0, 0.7)";
             break;
           case '声能柚子':
@@ -723,4 +723,3 @@ const BattlefieldGrid: FC<BattlefieldGridProps> = ({ plants, zombies, projectile
 };
 
 export default BattlefieldGrid;
-
